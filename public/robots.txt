@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /admin
+Disallow: /account
+Disallow: /login
+Disallow: /register
+Allow: /
+
+# Add your live domain here, e.g.:
+# Sitemap: https://www.example.com/sitemap.xml
