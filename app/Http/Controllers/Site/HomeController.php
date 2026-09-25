@@ -56,7 +56,7 @@ class HomeController extends Controller
     /** Active services for the given slugs, in the same order. */
     private function servicesBySlug(array $slugs): Collection
     {
-        $services = Service::active()->whereIn('slug', $slugs)->with('category:id,slug,icon')->get()->keyBy('slug');
+        $services = Service::active()->whereIn('slug', $slugs)->with('category:id,slug,icon,name')->get()->keyBy('slug');
 
         return collect($slugs)->map(fn ($slug) => $services->get($slug))->filter()->values();
     }

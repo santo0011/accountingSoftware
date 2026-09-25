@@ -4,7 +4,7 @@
 @section('meta_description', (string) setting('seo_description'))
 
 @push('head')
-    <link rel="preload" as="image" href="{{ asset('images/site/hero.webp') }}" fetchpriority="high">
+    <link rel="preload" as="image" href="{{ asset('images/site/hero.webp') }}?v=2" fetchpriority="high">
 @endpush
 
 @section('content')
@@ -28,14 +28,18 @@
                 </ul>
             </div>
             <div class="col-lg-6">
-                <div class="hero-photo">
-                    <img src="{{ asset('images/site/hero.webp') }}" alt="Business professionals celebrating success" width="1100" height="900" fetchpriority="high">
+                <div class="hero-photo" data-tilt>
+                    <div class="hero-photo-frame">
+                        <img src="{{ asset('images/site/hero.webp') }}?v=2" alt="Indian business team reviewing documents together" width="1100" height="900" fetchpriority="high">
+                    </div>
                     <div class="hero-chip chip-1">
-                        <span class="icon-bubble sm green"><i class="bi bi-patch-check"></i></span>
+                        <span class="icon-bubble sm green chip-check">
+                            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
                         <span><strong>Registration complete</strong><small>Certificate delivered online</small></span>
                     </div>
                     <div class="hero-chip chip-2">
-                        <span class="icon-bubble sm amber"><i class="bi bi-star-fill"></i></span>
+                        <span class="icon-bubble sm amber chip-star"><i class="bi bi-star-fill"></i></span>
                         <span><strong>{{ setting('stat_rating', '4.8/5') }}</strong><small>Customer rating</small></span>
                     </div>
                 </div>
@@ -55,7 +59,7 @@
 
 {{-- ============ POPULAR SERVICES ============ --}}
 @if ($popular->isNotEmpty())
-<section class="section" id="popular-services">
+<section class="section section-tint" id="popular-services">
     <div class="container">
         <div class="section-bar">
             <x-site.section-head align="start" eyebrow="Most popular" title="Popular Services" />
@@ -71,7 +75,7 @@
 @endif
 
 {{-- ============ MAIN CATEGORIES ============ --}}
-<section class="section bg-soft" id="services">
+<section class="section section-plain" id="services">
     <div class="container">
         <x-site.section-head eyebrow="What we do" title="Everything Your Business Needs" sub="Choose a category to see all services." />
         <div class="row g-4">
@@ -84,7 +88,7 @@
 
 {{-- ============ BUSINESS TECHNOLOGY ============ --}}
 @if ($technology->isNotEmpty())
-<section class="section">
+<section class="section section-dark">
     <div class="container">
         <div class="section-bar">
             <x-site.section-head align="start" eyebrow="Business technology" title="Software That Grows Your Business" />
@@ -100,7 +104,7 @@
 @endif
 
 {{-- ============ HOW IT WORKS ============ --}}
-<section class="section bg-soft">
+<section class="section section-soft">
     <div class="container">
         <x-site.section-head eyebrow="How it works" title="Done in 4 Simple Steps" />
         <div class="steps-v2">
@@ -121,7 +125,7 @@
 </section>
 
 {{-- ============ WHY CHOOSE US ============ --}}
-<section class="section">
+<section class="section section-plain">
     <div class="container">
         <x-site.section-head eyebrow="Why choose us" title="Built on Trust & Expertise" />
         <div class="why-grid">
@@ -143,7 +147,7 @@
 </section>
 
 {{-- ============ CTA ============ --}}
-<section class="pb-5">
+<section class="section-cta">
     <div class="container">
         <div class="cta-photo" style="--cta-img: url('{{ asset('images/site/cta.webp') }}')">
             <div class="cta-photo-inner">
@@ -160,7 +164,7 @@
 
 {{-- ============ FAQ ============ --}}
 @if ($faqs->isNotEmpty())
-<section class="section pt-4">
+<section class="section section-soft">
     <div class="container" style="max-width: 860px">
         <x-site.section-head eyebrow="FAQ" title="Common Questions" />
         <div class="accordion faq-v2" id="homeFaq">

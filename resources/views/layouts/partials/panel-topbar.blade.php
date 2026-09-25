@@ -6,13 +6,15 @@
     @if ($area === 'admin')
         <form class="search d-none d-md-block" action="{{ route('admin.search') }}" method="GET" role="search">
             <i class="bi bi-search"></i>
-            <input type="search" name="q" class="form-control" placeholder="Search application no., customer, mobile, invoice…" value="{{ request('q') }}" aria-label="Search">
+            <input type="search" name="q" class="form-control" placeholder="Search applications, customers, invoices…" value="{{ request('q') }}" aria-label="Search" id="globalSearch">
+            <kbd class="search-kbd">Ctrl K</kbd>
         </form>
     @else
         <div class="d-none d-md-block text-muted small">Welcome back, <strong class="text-navy">{{ \Illuminate\Support\Str::before($user->name, ' ') }}</strong></div>
     @endif
 
     <div class="ms-auto d-flex align-items-center gap-2">
+        <span class="topbar-date d-none d-xl-inline-flex"><i class="bi bi-calendar3"></i>{{ now()->format('D, d M Y') }}</span>
         @if ($area === 'portal')
             <a href="{{ route('site.services.index') }}" class="btn btn-cta btn-sm d-none d-sm-inline-flex"><i class="bi bi-plus-lg me-1"></i>Apply for a Service</a>
         @else

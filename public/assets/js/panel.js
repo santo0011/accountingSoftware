@@ -93,6 +93,66 @@
         show(errorPane >= 0 ? errorPane : 0);
     });
 
+    // Collapsible sidebar groups (admin), accordion style:
+    // on page load only the group holding the current page is open,
+    // and opening a group closes the others.
+    const navGroups = document.querySelector('[data-nav-groups]');
+    if (navGroups) {
+        const groups = [...navGroups.querySelectorAll('[data-nav-group]')].filter((g) => !g.classList.contains('pinned'));
+
+        const setOpen = (g, open) => {
+            g.classList.toggle('open', open);
+            g.querySelector('.nav-group-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+        };
+        const syncAllButton = () => {
+            const btn = navGroups.querySelector('[data-nav-toggle-all] i');
+            const anyOpen = groups.some((g) => g.classList.contains('open'));
+            if (btn) btn.className = 'bi ' + (anyOpen ? 'bi-arrows-collapse' : 'bi-arrows-expand');
+        };
+
+        // First paint: only the current page's group is open (no animation).
+        navGroups.classList.add('no-anim');
+        groups.forEach((g) => setOpen(g, g.classList.contains('has-active')));
+        requestAnimationFrame(() => requestAnimationFrame(() => navGroups.classList.remove('no-anim')));
+        syncAllButton();
+
+        groups.forEach((g) => g.querySelector('.nav-group-toggle').addEventListener('click', () => {
+            if (body.classList.contains('sidebar-collapsed')) return;
+            const willOpen = !g.classList.contains('open');
+            groups.forEach((other) => setOpen(other, other === g ? willOpen : false));
+            syncAllButton();
+        }));
+
+        // Toolbar button: collapse everything, or re-open the current page's group.
+        navGroups.querySelector('[data-nav-toggle-all]')?.addEventListener('click', () => {
+            const anyOpen = groups.some((g) => g.classList.contains('open'));
+            groups.forEach((g) => setOpen(g, !anyOpen && g.classList.contains('has-active')));
+            syncAllButton();
+        });
+
+        // In icon-only mode, show the page name as a tooltip on hover.
+        navGroups.querySelectorAll('.nav-group-inner a').forEach((a) => {
+            const tip = () => (window.bootstrap ? bootstrap.Tooltip.getOrCreateInstance(a, { trigger: 'manual', placement: 'right' }) : null);
+            a.addEventListener('mouseenter', () => { if (body.classList.contains('sidebar-collapsed')) tip()?.show(); });
+            a.addEventListener('mouseleave', () => tip()?.hide());
+            a.addEventListener('click', () => tip()?.hide());
+        });
+
+        // Keep the active link in view when the page loads.
+        if (window.innerWidth >= 992) {
+            const active = navGroups.querySelector('a.active');
+            if (active) navGroups.scrollTop = Math.max(0, active.offsetTop - navGroups.clientHeight / 2);
+        }
+    }
+
+    // Ctrl/Cmd + K focuses the global search.
+    const globalSearch = document.getElementById('globalSearch');
+    if (globalSearch) {
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); globalSearch.focus(); globalSearch.select(); }
+        });
+    }
+
     // Bootstrap tooltips.
     document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => new bootstrap.Tooltip(el));
 

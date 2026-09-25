@@ -3,7 +3,7 @@
 <head>
     @include('partials.head')
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="{{ asset('assets/css/panel.css') }}?v=1">
+    <link rel="stylesheet" href="{{ asset('assets/css/panel.css') }}?v=10">
     @stack('head')
 </head>
 <body class="panel">
@@ -46,24 +46,54 @@
         ],
     ];
     $user = auth()->user();
+    $sectionIcons = ['Overview' => 'bi-speedometer', 'CRM' => 'bi-people', 'Operations' => 'bi-kanban', 'Billing' => 'bi-wallet2', 'Catalogue' => 'bi-grid', 'Team' => 'bi-person-badge', 'System' => 'bi-sliders'];
 @endphp
 <aside class="sidebar dark" aria-label="Admin navigation">
-    <div class="sidebar-brand"><x-brand :href="route('admin.dashboard')" /></div>
-    <nav class="sidebar-nav">
+    <div class="sidebar-brand"><x-brand :href="route('admin.dashboard')" /><span class="sidebar-badge">Admin</span></div>
+    <nav class="sidebar-nav" data-nav-groups>
+        <div class="nav-groups-bar">
+            <span>Menu</span>
+            <button type="button" class="nav-groups-all" data-nav-toggle-all title="Collapse / show current section"><i class="bi bi-arrows-collapse"></i></button>
+        </div>
         @foreach ($sections as $section => $items)
-            @php($visible = collect($items)->filter(fn ($i) => ! $i[4] || $user->can($i[4])))
+            @php
+                $visible = collect($items)->filter(fn ($i) => ! $i[4] || $user->can($i[4]));
+                $hasActive = $visible->contains(fn ($i) => request()->routeIs(...explode('|', $i[3])));
+                $key = \Illuminate\Support\Str::slug($section);
+                $pinned = $section === 'Overview';
+            @endphp
             @continue($visible->isEmpty())
-            <div class="nav-section">{{ $section }}</div>
-            @foreach ($visible as [$route, $icon, $label, $pattern])
-                <a href="{{ route($route) }}" class="{{ request()->routeIs(...explode('|', $pattern)) ? 'active' : '' }}" title="{{ $label }}">
-                    <i class="bi {{ $icon }}"></i><span>{{ $label }}</span>
-                    @if ($route === 'admin.notifications.index' && ($unreadCount ?? 0))<span class="badge bg-danger count">{{ $unreadCount }}</span>@endif
-                </a>
-            @endforeach
+            <div class="nav-group {{ $pinned || $hasActive ? 'open' : '' }} {{ $pinned ? 'pinned' : '' }} {{ $hasActive ? 'has-active' : '' }}" data-nav-group="{{ $key }}">
+                <button type="button" class="nav-group-toggle" aria-expanded="{{ $pinned || $hasActive ? 'true' : 'false' }}" aria-controls="ng-{{ $key }}" @if ($pinned) tabindex="-1" @endif>
+                    <i class="bi {{ $sectionIcons[$section] ?? 'bi-folder' }} nav-group-icon"></i>
+                    <span class="nav-group-label">{{ $section }}</span>
+                    <span class="nav-group-count">{{ $visible->count() }}</span>
+                    @unless ($pinned)<i class="bi bi-chevron-down nav-group-chevron"></i>@endunless
+                </button>
+                <div class="nav-group-body" id="ng-{{ $key }}">
+                    <div class="nav-group-inner">
+                        @foreach ($visible as [$route, $icon, $label, $pattern])
+                            <a href="{{ route($route) }}" class="{{ request()->routeIs(...explode('|', $pattern)) ? 'active' : '' }}" title="{{ $label }}" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-trigger="manual">
+                                <i class="bi {{ $icon }}"></i><span>{{ $label }}</span>
+                                @if ($route === 'admin.notifications.index' && ($unreadCount ?? 0))<span class="badge bg-danger count">{{ $unreadCount }}</span>@endif
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
         @endforeach
     </nav>
-    <div class="sidebar-footer small">
-        Signed in as <strong class="text-white">{{ $user->getRoleNames()->map(fn ($r) => config("rbac.roles.$r.label", $r))->first() }}</strong>
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <span class="avatar">{{ $user->initials() }}</span>
+            <span class="sidebar-user-info">
+                <span class="sidebar-user-name">{{ $user->name }}</span>
+                <span class="sidebar-user-role">{{ $user->getRoleNames()->map(fn ($r) => config("rbac.roles.$r.label", $r))->first() }}</span>
+            </span>
+            <form method="POST" action="{{ route('logout') }}">@csrf
+                <button class="sidebar-logout" title="Logout" aria-label="Logout" data-no-lock><i class="bi bi-box-arrow-right"></i></button>
+            </form>
+        </div>
     </div>
 </aside>
 <div class="sidebar-backdrop"></div>
@@ -81,7 +111,7 @@
 </div>
 
 <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('assets/js/panel.js') }}?v=1"></script>
+<script src="{{ asset('assets/js/panel.js') }}?v=4"></script>
 @stack('scripts')
 </body>
 </html>

@@ -2,35 +2,72 @@
 @section('title', (string) ('Dashboard'))
 
 @section('content')
-<div class="welcome-card mb-4">
-    <div class="row align-items-center g-3 position-relative" style="z-index:1">
-        <div class="col-lg-7">
-            <h2 class="mb-1">Welcome, {{ \Illuminate\Support\Str::before(auth()->user()->name, ' ') }} 👋</h2>
-            <p class="mb-0">Here's what's happening with your business services today.</p>
-        </div>
-        <div class="col-lg-5 text-lg-end">
-            <a href="{{ route('site.services.index') }}" class="btn btn-cta"><i class="bi bi-plus-lg me-1"></i>Apply for a Service</a>
-        </div>
+@php
+    $firstName = \Illuminate\Support\Str::before(auth()->user()->name, " ");
+    $business = $customer->businesses()->orderByDesc("is_primary")->value("name");
+    $attention = $stats["pending_payments"] + $stats["pending_documents"];
+    // [label, value, icon, tone, link, hint, trend]
+    $kpis = [
+        ["Active applications", $stats["active"], "bi-folder2-open", "blue", route("portal.applications.index", ["filter" => "active"]), $stats["active"] ? "In progress" : "None right now", "neutral"],
+        ["Completed services", $stats["completed"], "bi-patch-check", "green", route("portal.applications.index", ["filter" => "completed"]), "All time", "up"],
+        ["Pending documents", $stats["pending_documents"], "bi-file-earmark-arrow-up", "amber", route("portal.documents.index"), $stats["pending_documents"] ? "Upload needed" : "All clear", $stats["pending_documents"] ? "warn" : "up"],
+        ["Pending payments", $stats["pending_payments"], "bi-credit-card", "rose", route("portal.payments.index"), $stats["pending_payments"] ? "Payment due" : "All paid", $stats["pending_payments"] ? "down" : "up"],
+    ];
+@endphp
+
+{{-- Welcome banner --}}
+<div class="dash-hero">
+    <div class="dash-hero-text">
+        <div class="dash-hero-date"><i class="bi bi-sun"></i> {{ now()->format("l, d F Y") }}</div>
+        <h1>Welcome back, {{ $firstName }} 👋</h1>
+        <p>@if ($business){{ $business }} · @endif Here is the status of your business services.</p>
+        @if ($attention)
+            <a href="{{ $stats["pending_payments"] ? route("portal.payments.index") : route("portal.documents.index") }}" class="dash-hero-alert">
+                <span class="pulse-dot"></span>{{ $attention }} item(s) need your attention <i class="bi bi-arrow-right"></i>
+            </a>
+        @elseif ($stats["upcoming_compliance"])
+            <a href="{{ route("portal.compliance.index") }}" class="dash-hero-alert">
+                <i class="bi bi-calendar-event"></i>{{ $stats["upcoming_compliance"] }} compliance due date(s) in the next 30 days <i class="bi bi-arrow-right"></i>
+            </a>
+        @endif
+    </div>
+    <div class="dash-hero-actions">
+        <a href="{{ route("site.services.index") }}" class="btn btn-light"><i class="bi bi-plus-lg me-1"></i>Apply for a Service</a>
+        <a href="{{ route("portal.support.create") }}" class="btn btn-ghost-light"><i class="bi bi-headset me-1"></i>Get Help</a>
     </div>
 </div>
 
+{{-- KPI cards --}}
 <div class="row g-3 mb-4">
-    <div class="col-6 col-xl"><x-stat-card label="Active applications" :value="$stats['active']" icon="bi-folder2-open" :href="route('portal.applications.index', ['filter' => 'active'])" /></div>
-    <div class="col-6 col-xl"><x-stat-card label="Completed services" :value="$stats['completed']" icon="bi-patch-check" color="green" :href="route('portal.applications.index', ['filter' => 'completed'])" /></div>
-    <div class="col-6 col-xl"><x-stat-card label="Pending documents" :value="$stats['pending_documents']" icon="bi-file-earmark-arrow-up" color="amber" :href="route('portal.documents.index')" /></div>
-    <div class="col-6 col-xl"><x-stat-card label="Pending payments" :value="$stats['pending_payments']" icon="bi-credit-card" color="red" :href="route('portal.payments.index')" /></div>
-    <div class="col-12 col-xl"><x-stat-card label="Upcoming compliance (30 days)" :value="$stats['upcoming_compliance']" icon="bi-calendar-event" color="teal" :href="route('portal.compliance.index')" /></div>
+    @foreach ($kpis as [$label, $value, $icon, $tone, $href, $hint, $trend])
+        <div class="col-6 col-xl-3">
+            <a href="{{ $href }}" class="kpi kpi-{{ $tone }}">
+                <div class="kpi-top">
+                    <span class="kpi-icon"><i class="bi {{ $icon }}"></i></span>
+                    <i class="bi bi-arrow-up-right kpi-go"></i>
+                </div>
+                <div class="kpi-value">{{ $value }}</div>
+                <div class="kpi-label">{{ $label }}</div>
+                <span class="kpi-hint kpi-hint-{{ $trend }}">@if ($trend === "up")<i class="bi bi-check2"></i>@elseif ($trend === "down")<i class="bi bi-exclamation-circle"></i>@elseif ($trend === "warn")<i class="bi bi-clock"></i>@endif{{ $hint }}</span>
+            </a>
+        </div>
+    @endforeach
 </div>
 
+{{-- Quick actions --}}
 <div class="row g-3 mb-4">
     @foreach ([
-        [route('site.services.index'), 'bi-plus-circle', 'Apply for a Service', ''],
-        [route('portal.documents.index'), 'bi-cloud-upload', 'Upload Document', 'amber'],
-        [route('portal.payments.index'), 'bi-wallet2', 'Make Payment', 'green'],
-        [route('portal.support.create'), 'bi-headset', 'Contact Support', 'teal'],
-    ] as [$url, $icon, $label, $color])
-        <div class="col-6 col-md-3">
-            <a href="{{ $url }}" class="quick-action"><span class="icon-bubble {{ $color }}"><i class="bi {{ $icon }}"></i></span>{{ $label }}</a>
+        [route("site.services.index"), "bi-plus-circle", "Apply for a Service", "Browse 50+ services", "blue"],
+        [route("portal.documents.index"), "bi-cloud-upload", "Upload Document", "Share files securely", "amber"],
+        [route("portal.payments.index"), "bi-wallet2", "Make Payment", "UPI or bank transfer", "green"],
+        [route("portal.support.create"), "bi-headset", "Contact Support", "We reply within a day", "violet"],
+    ] as [$url, $icon, $label, $sub, $tone])
+        <div class="col-6 col-lg-3">
+            <a href="{{ $url }}" class="qa kpi-{{ $tone }}">
+                <span class="kpi-icon"><i class="bi {{ $icon }}"></i></span>
+                <span class="qa-text"><strong>{{ $label }}</strong><small>{{ $sub }}</small></span>
+                <i class="bi bi-chevron-right qa-go"></i>
+            </a>
         </div>
     @endforeach
 </div>

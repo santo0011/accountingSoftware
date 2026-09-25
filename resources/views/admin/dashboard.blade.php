@@ -2,34 +2,55 @@
 @section('title', (string) ('Dashboard'))
 
 @section('content')
-<x-page-header title="Dashboard" :subtitle="'Good '.(now()->hour < 12 ? 'morning' : (now()->hour < 17 ? 'afternoon' : 'evening')).', '.\Illuminate\Support\Str::before(auth()->user()->name, ' ').'. Here is today\'s overview.'">
-    @can('applications.create')<a href="{{ route('admin.applications.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>New Application</a>@endcan
-    @can('leads.create')<a href="{{ route('admin.leads.create') }}" class="btn btn-outline-primary"><i class="bi bi-person-plus me-1"></i>Add Lead</a>@endcan
-</x-page-header>
+@php
+    $firstName = \Illuminate\Support\Str::before(auth()->user()->name, " ");
+    $greeting = now()->hour < 12 ? "Good morning" : (now()->hour < 17 ? "Good afternoon" : "Good evening");
+    // [label, value, icon, colour key, link, hint, hint tone, permission]
+    $kpis = [
+        ["Total customers", number_format($stats["customers"]), "bi-people", "blue", route("admin.customers.index"), "+".$stats["new_customers"]." this month", "up", "customers.view"],
+        ["New leads", $stats["new_leads"], "bi-person-lines-fill", "violet", route("admin.leads.index", ["status" => "new"]), "Awaiting contact", "neutral", "leads.view"],
+        ["Active applications", $stats["active_applications"], "bi-folder2-open", "sky", route("admin.applications.index", ["status" => "active"]), "In progress", "neutral", "applications.view"],
+        ["Completed", $stats["completed_applications"], "bi-patch-check", "green", route("admin.applications.index", ["status" => "completed"]), "All time", "neutral", "applications.view"],
+        ["Pending documents", $stats["pending_documents"], "bi-file-earmark-arrow-up", "amber", route("admin.documents.index"), $stats["pending_documents"] ? "Needs review" : "All clear", $stats["pending_documents"] ? "warn" : "up", "documents.view"],
+        ["Pending payments", $stats["pending_payments"], "bi-hourglass-split", "rose", route("admin.applications.index", ["payment" => "pending"]), $stats["pending_payments"] ? "Follow up" : "All clear", $stats["pending_payments"] ? "down" : "up", "payments.view"],
+        ["Revenue this month", money($stats["monthly_revenue"], false), "bi-currency-rupee", "green", route("admin.payments.index", ["status" => "paid"]), now()->format("F Y"), "neutral", "payments.view"],
+        ["Compliance (30 days)", $stats["upcoming_compliance"], "bi-calendar-event", "teal", route("admin.compliance.index"), $overdueCompliance ? $overdueCompliance." overdue" : "On track", $overdueCompliance ? "down" : "up", "compliance.view"],
+    ];
+@endphp
 
-@if ($pendingVerification)
-    <div class="alert alert-info d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <span><i class="bi bi-hourglass-split me-1"></i><strong>{{ $pendingVerification }}</strong> customer payment(s) are waiting for verification.</span>
-        <a href="{{ route('admin.payments.index', ['status' => 'pending']) }}" class="btn btn-sm btn-primary">Verify now</a>
+{{-- Welcome banner --}}
+<div class="dash-hero">
+    <div class="dash-hero-text">
+        <div class="dash-hero-date"><i class="bi bi-sun"></i> {{ now()->format("l, d F Y") }}</div>
+        <h1>{{ $greeting }}, {{ $firstName }} 👋</h1>
+        <p>Here is what is happening with your business today.</p>
+        @if ($pendingVerification)
+            <a href="{{ route("admin.payments.index", ["status" => "pending"]) }}" class="dash-hero-alert">
+                <span class="pulse-dot"></span><strong>{{ $pendingVerification }}</strong> payment(s) waiting for verification <i class="bi bi-arrow-right"></i>
+            </a>
+        @endif
     </div>
-@endif
+    <div class="dash-hero-actions">
+        @can("applications.create")<a href="{{ route("admin.applications.create") }}" class="btn btn-light"><i class="bi bi-plus-lg me-1"></i>New Application</a>@endcan
+        @can("leads.create")<a href="{{ route("admin.leads.create") }}" class="btn btn-ghost-light"><i class="bi bi-person-plus me-1"></i>Add Lead</a>@endcan
+    </div>
+</div>
 
+{{-- KPI cards --}}
 <div class="row g-3 mb-4">
-    @php
-        $cards = [
-        ['Total customers', number_format($stats['customers']), 'bi-people', '', route('admin.customers.index'), '+'.$stats['new_customers'].' this month', 'customers.view'],
-        ['New leads', $stats['new_leads'], 'bi-person-lines-fill', 'teal', route('admin.leads.index', ['status' => 'new']), null, 'leads.view'],
-        ['Active applications', $stats['active_applications'], 'bi-folder2-open', '', route('admin.applications.index', ['status' => 'active']), null, 'applications.view'],
-        ['Completed applications', $stats['completed_applications'], 'bi-patch-check', 'green', route('admin.applications.index', ['status' => 'completed']), null, 'applications.view'],
-        ['Pending documents', $stats['pending_documents'], 'bi-file-earmark-arrow-up', 'amber', route('admin.documents.index'), null, 'documents.view'],
-        ['Pending payments', $stats['pending_payments'], 'bi-hourglass-split', 'red', route('admin.applications.index', ['payment' => 'pending']), null, 'payments.view'],
-        ['Revenue this month', money($stats['monthly_revenue'], false), 'bi-currency-rupee', 'green', route('admin.payments.index', ['status' => 'paid']), null, 'payments.view'],
-        ['Upcoming compliance (30d)', $stats['upcoming_compliance'], 'bi-calendar-event', 'teal', route('admin.compliance.index'), $overdueCompliance ? $overdueCompliance.' overdue' : null, 'compliance.view'],
-        ];
-    @endphp
-    @foreach ($cards as [$label, $value, $icon, $color, $href, $hint, $perm])
+    @foreach ($kpis as [$label, $value, $icon, $tone, $href, $hint, $trend, $perm])
         @can($perm)
-            <div class="col-6 col-lg-3"><x-stat-card :label="$label" :value="$value" :icon="$icon" :color="$color" :href="$href" :hint="$hint" /></div>
+            <div class="col-6 col-xl-3">
+                <a href="{{ $href }}" class="kpi kpi-{{ $tone }}">
+                    <div class="kpi-top">
+                        <span class="kpi-icon"><i class="bi {{ $icon }}"></i></span>
+                        <i class="bi bi-arrow-up-right kpi-go"></i>
+                    </div>
+                    <div class="kpi-value">{{ $value }}</div>
+                    <div class="kpi-label">{{ $label }}</div>
+                    <span class="kpi-hint kpi-hint-{{ $trend }}">@if ($trend === "up")<i class="bi bi-arrow-up-short"></i>@elseif ($trend === "down")<i class="bi bi-exclamation-circle"></i>@elseif ($trend === "warn")<i class="bi bi-clock"></i>@endif{{ $hint }}</span>
+                </a>
+            </div>
         @endcan
     @endforeach
 </div>
@@ -37,18 +58,36 @@
 <div class="row g-4 mb-4">
     @if ($revenue)
         <div class="col-xl-8">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">Revenue — last 12 months <span class="small text-muted fw-normal">Total {{ money(array_sum($revenue['values']), false) }}</span></div>
+            <div class="card h-100 chart-card">
+                <div class="card-header chart-card-head">
+                    <div>
+                        <div class="chart-card-title">Revenue</div>
+                        <div class="chart-card-sub">Last 12 months</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="chart-card-total">{{ money(array_sum($revenue['values']), false) }}</div>
+                        <div class="chart-card-sub">Total collected</div>
+                    </div>
+                </div>
                 <div class="card-body"><div class="chart-box"><canvas id="revenueChart" aria-label="Revenue chart"></canvas></div></div>
             </div>
         </div>
     @endif
     <div class="{{ $revenue ? 'col-xl-4' : 'col-12' }}">
-        <div class="card h-100">
-            <div class="card-header">Applications by status</div>
+        <div class="card h-100 chart-card">
+            <div class="card-header chart-card-head">
+                <div>
+                    <div class="chart-card-title">Applications</div>
+                    <div class="chart-card-sub">By current status</div>
+                </div>
+            </div>
             <div class="card-body">
                 @if ($byStatus)
-                    <div class="chart-box" style="height:250px"><canvas id="statusChart" aria-label="Applications by status"></canvas></div>
+                    <div class="donut-wrap">
+                        <div class="chart-box" style="height:220px"><canvas id="statusChart" aria-label="Applications by status"></canvas></div>
+                        <div class="donut-center"><strong>{{ array_sum($byStatus) }}</strong><span>Total</span></div>
+                    </div>
+                    <div class="donut-legend" id="statusLegend"></div>
                 @else
                     <x-empty-state icon="bi-pie-chart" title="No applications yet" />
                 @endif
@@ -150,21 +189,44 @@
 <script src="{{ asset('vendor/chartjs/chart.umd.min.js') }}"></script>
 <script>
     Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
-    Chart.defaults.color = '#6b7280';
+    Chart.defaults.font.size = 11;
+    Chart.defaults.color = '#8a97a8';
+    const tooltip = { backgroundColor: '#0b2a4a', padding: 10, cornerRadius: 10, titleFont: { weight: '600' }, displayColors: false };
     @if ($revenue)
-    new Chart(document.getElementById('revenueChart'), {
-        type: 'bar',
-        data: { labels: @json($revenue['labels']), datasets: [{ label: 'Revenue', data: @json($revenue['values']), backgroundColor: '#1565c0', borderRadius: 6, maxBarThickness: 36 }] },
-        options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => '₹' + c.parsed.y.toLocaleString('en-IN') } } },
-            scales: { y: { beginAtZero: true, grid: { color: '#eef2f7' }, ticks: { callback: (v) => '₹' + Number(v).toLocaleString('en-IN') } }, x: { grid: { display: false } } } }
-    });
+    (() => {
+        const canvas = document.getElementById('revenueChart');
+        const ctx = canvas.getContext('2d');
+        const grad = ctx.createLinearGradient(0, 0, 0, canvas.parentElement.clientHeight || 290);
+        grad.addColorStop(0, '#2f80ed');
+        grad.addColorStop(1, 'rgba(47, 128, 237, .25)');
+        new Chart(canvas, {
+            type: 'bar',
+            data: { labels: @json($revenue['labels']), datasets: [{ label: 'Revenue', data: @json($revenue['values']), backgroundColor: grad, hoverBackgroundColor: '#0b2a4a', borderRadius: 8, borderSkipped: false, maxBarThickness: 30 }] },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { ...tooltip, callbacks: { label: (c) => '₹' + c.parsed.y.toLocaleString('en-IN') } } },
+                scales: {
+                    y: { beginAtZero: true, border: { display: false }, grid: { color: '#eef2f7' }, ticks: { padding: 8, callback: (v) => '₹' + (v >= 1000 ? (v / 1000) + 'k' : v) } },
+                    x: { border: { display: false }, grid: { display: false } },
+                },
+            },
+        });
+    })();
     @endif
     @if ($byStatus)
-    new Chart(document.getElementById('statusChart'), {
-        type: 'doughnut',
-        data: { labels: @json(array_keys($byStatus)), datasets: [{ data: @json(array_values($byStatus)), backgroundColor: ['#1565c0', '#f59e0b', '#0ea5e9', '#0d9488', '#16a34a', '#6366f1', '#dc2626', '#94a3b8', '#0b2a4a', '#a855f7', '#64748b'], borderWidth: 0 }] },
-        options: { maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } } }
-    });
+    (() => {
+        const labels = @json(array_keys($byStatus));
+        const values = @json(array_values($byStatus));
+        const colors = ['#1565c0', '#f59e0b', '#0ea5e9', '#0d9488', '#16a34a', '#6366f1', '#e11d48', '#94a3b8', '#0b2a4a', '#a855f7', '#64748b'];
+        new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 3, borderColor: '#fff', hoverOffset: 6 }] },
+            options: { maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false }, tooltip } },
+        });
+        // Custom legend: colour dot, label, count.
+        document.getElementById('statusLegend').innerHTML = labels.map((l, i) =>
+            '<div class="donut-legend-item"><span class="dot" style="background:' + colors[i % colors.length] + '"></span><span class="lbl">' + l + '</span><span class="val">' + values[i] + '</span></div>').join('');
+    })();
     @endif
 </script>
 @endpush

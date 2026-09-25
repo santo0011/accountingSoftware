@@ -136,8 +136,8 @@
                                     <div class="small text-muted">Professional fee{{ $service->isRecurring() ? ' · billed '.strtolower($service->intervalLabel()) : '' }}</div>
                                 </div>
                                 <div class="text-end">
-                                    @if ($service->hasDiscount())<div class="price-old">{{ money($service->price) }}</div>@endif
-                                    <div class="h3 mb-0">{{ money($price) }}</div>
+                                    <div class="svc-price-label">Starting from</div>
+                                    <div class="d-flex align-items-baseline justify-content-end gap-2"><span class="fs-4 fw-bold text-navy">{{ money($price, false) }}</span>@if ($service->hasDiscount())<s class="text-muted small">{{ money($service->price, false) }}</s>@endif</div>
                                     <div class="small text-muted">+ GST {{ rtrim(rtrim(number_format($service->gst_rate, 2), '0'), '.') }}% ({{ money($quote['tax']) }})</div>
                                 </div>
                             </div>
@@ -171,10 +171,10 @@
 
             <aside class="col-lg-4 d-none d-lg-block">
                 <div class="price-card p-4 mt-4">
-                    <div class="small text-muted mb-1">Starting at</div>
+                    <div class="svc-price-label mb-1">Starting from</div>
                     <div class="d-flex align-items-baseline gap-2 mb-1">
                         <span class="amount">{{ money($price, false) }}</span>
-                        @if ($service->hasDiscount())<span class="price-old">{{ money($service->price, false) }}</span><span class="badge badge-soft-success">Save {{ $service->discountPercent() }}%</span>@endif
+                        @if ($service->hasDiscount())<s class="text-muted">{{ money($service->price, false) }}</s><span class="badge badge-soft-success">{{ $service->discountPercent() }}% off</span>@endif
                     </div>
                     <div class="small text-muted mb-3">+ GST · {{ $service->isRecurring() ? 'per '.str_replace('ly', '', strtolower($service->intervalLabel())) : 'one-time fee' }}</div>
                     <a href="{{ $applyUrl }}" class="btn btn-cta w-100 btn-lg mb-2">Apply Now</a>
@@ -209,7 +209,7 @@
 
 <div class="mobile-apply-bar d-lg-none d-flex align-items-center justify-content-between gap-3">
     <div>
-        <div class="small text-muted lh-1">Starting at</div>
+        <div class="svc-price-label lh-1">Starting from</div>
         <div class="fw-bold text-navy fs-5">{{ money($price, false) }} <small class="text-muted fw-normal fs-6">+ GST</small></div>
     </div>
     <a href="{{ $applyUrl }}" class="btn btn-cta">Apply Now</a>

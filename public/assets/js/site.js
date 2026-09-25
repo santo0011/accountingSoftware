@@ -184,6 +184,29 @@
         start();
     });
 
+    // Hero photo: subtle 3D tilt that follows the mouse (desktop only).
+    const tilt = document.querySelector('[data-tilt]');
+    if (tilt && window.matchMedia('(hover: hover) and (min-width: 992px)').matches
+        && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const MAX = 5; // degrees
+        let frame = null;
+        tilt.addEventListener('mousemove', (e) => {
+            const r = tilt.getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width - 0.5;
+            const y = (e.clientY - r.top) / r.height - 0.5;
+            cancelAnimationFrame(frame);
+            frame = requestAnimationFrame(() => {
+                tilt.style.setProperty('--ry', (x * MAX * 2).toFixed(2) + 'deg');
+                tilt.style.setProperty('--rx', (-y * MAX * 2).toFixed(2) + 'deg');
+            });
+        });
+        tilt.addEventListener('mouseleave', () => {
+            cancelAnimationFrame(frame);
+            tilt.style.setProperty('--rx', '0deg');
+            tilt.style.setProperty('--ry', '0deg');
+        });
+    }
+
     // Back-to-top button: shown after scrolling down one screen.
     const toTop = document.querySelector('.back-to-top');
     if (toTop) {
