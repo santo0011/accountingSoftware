@@ -28,4 +28,4 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}">
 <link rel="stylesheet" href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/app.css') }}?v=1">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css') }}?v=2">

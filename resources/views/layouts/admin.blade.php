@@ -3,10 +3,10 @@
 <head>
     @include('partials.head')
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="{{ asset('assets/css/panel.css') }}?v=10">
+    <link rel="stylesheet" href="{{ asset('assets/css/panel.css') }}?v=16">
     @stack('head')
 </head>
-<body class="panel">
+<body class="panel panel-admin">
 @php
     // [route, icon, label, active pattern, permission]
     $sections = [
@@ -90,7 +90,7 @@
                 <span class="sidebar-user-name">{{ $user->name }}</span>
                 <span class="sidebar-user-role">{{ $user->getRoleNames()->map(fn ($r) => config("rbac.roles.$r.label", $r))->first() }}</span>
             </span>
-            <form method="POST" action="{{ route('logout') }}">@csrf
+            <form method="POST" action="{{ route('logout') }}" data-logout>@csrf
                 <button class="sidebar-logout" title="Logout" aria-label="Logout" data-no-lock><i class="bi bi-box-arrow-right"></i></button>
             </form>
         </div>
@@ -110,8 +110,9 @@
     </footer>
 </div>
 
+@include('layouts.partials.logout-modal')
 <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('assets/js/panel.js') }}?v=4"></script>
+<script src="{{ asset('assets/js/panel.js') }}?v=6"></script>
 @stack('scripts')
 </body>
 </html>

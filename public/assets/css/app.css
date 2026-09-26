@@ -214,3 +214,9 @@ a { text-decoration: none; }
 .prose h2, .prose h3 { margin-top: 1.5rem; margin-bottom: .75rem; }
 .prose h2 { font-size: 1.35rem; } .prose h3 { font-size: 1.1rem; }
 .prose p, .prose li { line-height: 1.75; color: #374151; }
+
+/* ---------- Uploaded logo (Settings → Logo) ----------
+   Any image size or shape fits: capped by height, width follows the aspect ratio. */
+.brand img { display: block; height: auto; width: auto; max-height: 40px; max-width: 180px; object-fit: contain; }
+/* On dark backgrounds a dark logo would vanish, so it sits on a small white plate. */
+.sidebar.dark .brand img, .site-footer .brand img { background: #fff; padding: 4px 8px; border-radius: 8px; box-shadow: 0 2px 8px -2px rgba(0, 0, 0, .35); }
