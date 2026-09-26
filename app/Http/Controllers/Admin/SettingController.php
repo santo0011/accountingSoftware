@@ -72,14 +72,25 @@ class SettingController extends Controller implements HasMiddleware
             'seo_description' => ['nullable', 'string', 'max:500'],
             'seo_keywords' => ['nullable', 'string', 'max:500'],
             'google_analytics_id' => ['nullable', 'string', 'max:30', 'regex:/^[A-Z0-9\-]+$/'],
+            'hero_image' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
+            'hero_image_reset' => ['boolean'],
             'stat_customers' => ['nullable', 'string', 'max:20'],
             'stat_services' => ['nullable', 'string', 'max:20'],
             'stat_experts' => ['nullable', 'string', 'max:20'],
             'stat_rating' => ['nullable', 'string', 'max:20'],
         ]);
 
-        foreach (['logo' => 'branding', 'favicon' => 'branding'] as $field => $dir) {
+        unset($data['hero_image_reset']);
+
+        foreach (['logo' => 'branding', 'favicon' => 'branding', 'hero_image' => 'site'] as $field => $dir) {
             unset($data[$field]);
+            if ($field === 'hero_image' && $request->boolean('hero_image_reset') && ! $request->hasFile($field)) {
+                // "Use default image" drops the upload so the bundled hero shows again.
+                if ($old = $this->settings->get($field)) {
+                    Storage::disk('public')->delete($old);
+                }
+                $data[$field] = null;
+            }
             if ($request->hasFile($field)) {
                 if ($old = $this->settings->get($field)) {
                     Storage::disk('public')->delete($old);

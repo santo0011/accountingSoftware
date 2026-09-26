@@ -63,7 +63,7 @@
                     <li><a class="dropdown-item" href="{{ route('portal.support.index') }}"><i class="bi bi-headset me-2"></i>Support</a></li>
                 @endif
                 <li>
-                    <form method="POST" action="{{ route('logout') }}">@csrf
+                    <form method="POST" action="{{ route('logout') }}" data-logout>@csrf
                         <button class="dropdown-item text-danger" data-no-lock><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
                     </form>
                 </li>

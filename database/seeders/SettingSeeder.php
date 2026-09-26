@@ -63,6 +63,7 @@ class SettingSeeder extends Seeder
             'google_analytics_id' => null,
         ],
         'homepage' => [
+            'hero_image' => null,
             'stat_customers' => '25,000+',
             'stat_services' => '70+',
             'stat_experts' => '150+',

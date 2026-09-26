@@ -3,8 +3,10 @@
 @section('title', (string) setting('seo_title'))
 @section('meta_description', (string) setting('seo_description'))
 
+@php($heroImage = setting('hero_image') ? storage_asset(setting('hero_image')) : asset('images/site/hero.webp').'?v=2')
+
 @push('head')
-    <link rel="preload" as="image" href="{{ asset('images/site/hero.webp') }}?v=2" fetchpriority="high">
+    <link rel="preload" as="image" href="{{ $heroImage }}" fetchpriority="high">
 @endpush
 
 @section('content')
@@ -30,7 +32,7 @@
             <div class="col-lg-6">
                 <div class="hero-photo" data-tilt>
                     <div class="hero-photo-frame">
-                        <img src="{{ asset('images/site/hero.webp') }}?v=2" alt="Indian business team reviewing documents together" width="1100" height="900" fetchpriority="high">
+                        <img src="{{ $heroImage }}" alt="Indian business team reviewing documents together" width="1100" height="900" fetchpriority="high">
                     </div>
                     <div class="hero-chip chip-1">
                         <span class="icon-bubble sm green chip-check">

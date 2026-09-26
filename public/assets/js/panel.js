@@ -25,11 +25,82 @@
         if (msg && !window.confirm(msg)) e.preventDefault();
     });
 
-    // Prevent double submits.
+    // Logout asks first: <form data-logout> opens #logoutModal; "Yes, log out" submits that form.
+    const logoutModalEl = document.getElementById('logoutModal');
+    if (logoutModalEl && window.bootstrap) {
+        const logoutModal = bootstrap.Modal.getOrCreateInstance(logoutModalEl);
+        const confirmBtn = logoutModalEl.querySelector('[data-logout-confirm]');
+        let pendingForm = null;
+
+        document.addEventListener('submit', (e) => {
+            const form = e.target;
+            if (!form.hasAttribute('data-logout') || form.dataset.logoutConfirmed) return;
+            e.preventDefault();
+            pendingForm = form;
+            // Close an open user dropdown first so it doesn't sit on top of the dialog.
+            document.querySelectorAll('.dropdown-menu.show').forEach((menu) => {
+                const toggle = menu.parentElement.querySelector('[data-bs-toggle="dropdown"]');
+                if (toggle) bootstrap.Dropdown.getOrCreateInstance(toggle).hide();
+            });
+            logoutModal.show();
+        }, true);
+
+        confirmBtn.addEventListener('click', () => {
+            if (!pendingForm) return;
+            confirmBtn.classList.add('loading');
+            confirmBtn.disabled = true;
+            pendingForm.dataset.logoutConfirmed = '1';
+            pendingForm.submit();
+        });
+
+        // Focus the safe choice when the dialog opens; reset if it is dismissed.
+        logoutModalEl.addEventListener('shown.bs.modal', () => logoutModalEl.querySelector('.logout-cancel').focus());
+        logoutModalEl.addEventListener('hidden.bs.modal', () => {
+            if (confirmBtn.classList.contains('loading')) return;
+            pendingForm = null;
+        });
+    }
+
+    // Loading state + double-submit guard for every submit button (buttons with no type are submit buttons too).
+    // Opt out with data-no-lock; set the wording with data-loading-text="Uploading…".
+    const loadingText = (btn) => {
+        if (btn.dataset.loadingText) return btn.dataset.loadingText;
+        const label = btn.textContent.trim().toLowerCase();
+        const verbs = [['save', 'Saving…'], ['update', 'Saving…'], ['delete', 'Deleting…'], ['remove', 'Removing…'], ['send', 'Sending…'],
+            ['upload', 'Uploading…'], ['submit', 'Submitting…'], ['create', 'Creating…'], ['add', 'Adding…'], ['pay', 'Processing…'], ['apply', 'Submitting…']];
+        const hit = verbs.find(([word]) => label.includes(word));
+        return hit ? hit[1] : 'Please wait…';
+    };
+
     document.addEventListener('submit', (e) => {
         if (e.defaultPrevented) return;
-        const btn = e.target.querySelector('button[type=submit]:not([data-no-lock])');
-        if (btn) setTimeout(() => { btn.disabled = true; btn.insertAdjacentHTML('afterbegin', '<span class="spinner-border spinner-border-sm me-1"></span>'); }, 0);
+        const form = e.target;
+        const btn = (e.submitter && e.submitter.tagName === 'BUTTON' && e.submitter)
+            || form.querySelector('button:not([type=button]):not([type=reset])');
+        if (!btn || btn.hasAttribute('data-no-lock') || btn.classList.contains('is-loading')) return;
+
+        // Freeze the width so the button does not jump, then swap the label for a spinner.
+        btn.style.width = btn.getBoundingClientRect().width + 'px';
+        btn.style.setProperty('--btn-loader-color', getComputedStyle(btn).color);
+        if (!btn.querySelector('.btn-loader')) {
+            btn.insertAdjacentHTML('beforeend', '<span class="btn-loader" aria-hidden="true"><span class="btn-spinner"></span><span class="btn-loader-text"></span></span>');
+        }
+        btn.querySelector('.btn-loader-text').textContent = loadingText(btn);
+        btn.setAttribute('aria-busy', 'true');
+        requestAnimationFrame(() => btn.classList.add('is-loading'));
+        // Disable after the browser has read the clicked button's name/value for the request.
+        setTimeout(() => { btn.disabled = true; }, 0);
+    });
+
+    // Coming back with the browser's Back button can restore a frozen page; reset any loading buttons.
+    window.addEventListener('pageshow', (e) => {
+        if (!e.persisted) return;
+        document.querySelectorAll('.is-loading').forEach((btn) => {
+            btn.classList.remove('is-loading');
+            btn.disabled = false;
+            btn.removeAttribute('aria-busy');
+            btn.style.width = '';
+        });
     });
 
     // File inputs inside .upload-box show the chosen file name.
