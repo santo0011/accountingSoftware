@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     @include('partials.head')
-    <link rel="stylesheet" href="{{ asset('assets/css/site.css') }}?v=21">
+    <link rel="stylesheet" href="{{ asset('assets/css/site.css') }}?v=38">
     <script type="application/ld+json">
         {!! json_encode([
             '@context' => 'https://schema.org',
@@ -43,7 +43,7 @@
 </button>
 
 <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
-<script src="{{ asset('assets/js/site.js') }}?v=13" defer></script>
+<script src="{{ asset('assets/js/site.js') }}?v=14" defer></script>
 @stack('scripts')
 </body>
 </html>

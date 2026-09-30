@@ -226,6 +226,20 @@
         });
     }
 
+    // Fade sections up as they scroll into view. Content stays visible if this never runs.
+    const reveals = document.querySelectorAll('[data-reveal]');
+    if (reveals.length && 'IntersectionObserver' in window && !reduceMotion) {
+        document.documentElement.classList.add('reveal-ready');
+        const revealObs = new IntersectionObserver((entries, obs) => {
+            entries.forEach((en) => {
+                if (!en.isIntersecting) return;
+                en.target.classList.add('is-visible');
+                obs.unobserve(en.target);
+            });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+        reveals.forEach((el) => revealObs.observe(el));
+    }
+
     // Service search (AJAX autocomplete).
     document.querySelectorAll('[data-service-search]').forEach((wrap) => {
         const input = wrap.querySelector('input');

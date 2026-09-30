@@ -4,25 +4,34 @@
 @section('meta_description', (string) ($category->seo_description ?: $category->description))
 
 @section('content')
-<section class="page-hero">
-    <div class="container">
+@php($fromPrice = $category->activeServices->map->effectivePrice()->filter(fn ($p) => $p > 0)->min())
+<section class="cat-hero">
+    <div class="container position-relative">
         <nav aria-label="breadcrumb"><ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('site.home') }}">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ route('site.services.index') }}">Services</a></li>
-            <li class="breadcrumb-item active">{{ $category->name }}</li>
+            <li class="breadcrumb-item active" aria-current="page">{{ $category->name }}</li>
         </ol></nav>
         <div class="row align-items-center g-4 g-lg-5">
-            <div class="col-lg-6">
-                <span class="eyebrow"><i class="bi {{ $category->icon }}"></i> {{ $category->activeServices->count() }} services</span>
-                <h1>{{ $category->name }}</h1>
-                <p class="section-sub mb-4">{{ $category->tagline }}</p>
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="#services" class="btn btn-cta btn-lg">View Services</a>
-                    <a href="{{ route('site.contact') }}" class="btn btn-outline-primary btn-lg">Talk to an Expert</a>
+            <div class="col-lg-7">
+                <div class="cat-hero-title">
+                    <span class="cat-hero-icon"><i class="bi {{ $category->icon }}"></i></span>
+                    <h1>{{ $category->name }}</h1>
+                </div>
+                @if ($category->tagline)<p class="cat-hero-lead">{{ $category->tagline }}</p>@endif
+                <ul class="cat-hero-facts">
+                    <li><i class="bi bi-grid"></i> {{ $category->activeServices->count() }} services</li>
+                    @if ($fromPrice)<li><i class="bi bi-tag"></i> From {{ money($fromPrice, false) }}</li>@endif
+                    <li><i class="bi bi-laptop"></i> 100% online</li>
+                    <li><i class="bi bi-person-check"></i> Expert-handled</li>
+                </ul>
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a href="#services" class="btn btn-cta">View Services <i class="bi bi-arrow-down ms-1"></i></a>
+                    <a href="{{ route('site.contact') }}" class="btn btn-ghost-light">Talk to an Expert</a>
                 </div>
             </div>
-            <div class="col-lg-6 d-none d-md-block">
-                <div class="page-hero-photo"><img src="{{ $category->imageUrl() }}" alt="{{ $category->name }}" width="800" height="534"></div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="cat-hero-photo"><img src="{{ $category->imageUrl() }}" alt="{{ $category->name }}" width="800" height="534" fetchpriority="high"></div>
             </div>
         </div>
     </div>
