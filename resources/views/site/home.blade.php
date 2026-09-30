@@ -18,26 +18,13 @@
         <div class="row align-items-center g-5">
             <div class="col-lg-6 hero-x-copy">
                 <span class="hero-x-badge"><span class="dot"></span> Trusted by {{ setting('stat_customers', '10,000+') }} businesses across India</span>
-                <h1>Start, manage &amp; grow your business, <span class="hero-x-hl">all online.</span></h1>
-                <p class="hero-x-lead">Company registration, GST, trademark and compliance — handled end-to-end by qualified CAs, CSs and lawyers, at fixed prices.</p>
+                <h1>Start, run &amp; grow your business <span class="hero-x-hl">without the paperwork.</span></h1>
+                <p class="hero-x-lead">Company registration, GST, trademark and compliance — done online by expert CAs and lawyers, at fixed prices.</p>
 
-                <form action="{{ route('site.services.index') }}" method="GET" class="hero-search hero-x-search" data-service-search="{{ route('site.services.search') }}" data-contact-url="{{ route('site.contact') }}" role="search">
-                    <i class="bi bi-search"></i>
-                    <input type="search" name="q" class="form-control" placeholder="Try &quot;GST registration&quot;" autocomplete="off" aria-label="Search services">
-                    <button type="submit" class="btn btn-cta">Search</button>
-                    <div class="search-results"></div>
-                </form>
-
-                @if ($categories->isNotEmpty())
-                    <div class="hero-x-cats">
-                        @foreach ($categories->take(4) as $item)
-                            <a href="{{ route('site.categories.show', $item['category']->slug) }}" class="hero-x-cat">
-                                <i class="bi {{ $item['category']->icon }}"></i>
-                                <span>{{ $item['label'] }}</span>
-                            </a>
-                        @endforeach
-                    </div>
-                @endif
+                <div class="hero-x-actions">
+                    <a href="{{ route('site.services.index') }}" class="btn btn-cta btn-lg">Get Started <i class="bi bi-arrow-right ms-1"></i></a>
+                    <a href="{{ route('site.contact') }}" class="btn btn-ghost-light btn-lg"><i class="bi bi-headset me-1"></i> Talk to an Expert</a>
+                </div>
 
                 <ul class="hero-x-points">
                     <li><i class="bi bi-check-circle-fill"></i> 100% online</li>
@@ -48,6 +35,18 @@
 
             <div class="col-lg-6">
                 <div class="hero-x-visual" data-tilt>
+                    <div class="hero-orbit" aria-hidden="true">
+                        <div class="orbit-ring ring-1">
+                            <span class="orbit-dot" style="--a: 20deg"><span class="orbit-ico"><i class="bi bi-receipt"></i></span></span>
+                            <span class="orbit-dot" style="--a: 140deg"><span class="orbit-ico"><i class="bi bi-c-circle"></i></span></span>
+                            <span class="orbit-dot" style="--a: 260deg"><span class="orbit-ico"><i class="bi bi-bank"></i></span></span>
+                        </div>
+                        <div class="orbit-ring ring-2">
+                            <span class="orbit-dot sm" style="--a: 80deg"><span class="orbit-ico"><i class="bi bi-shield-check"></i></span></span>
+                            <span class="orbit-dot sm" style="--a: 200deg"><span class="orbit-ico"><i class="bi bi-file-earmark-text"></i></span></span>
+                            <span class="orbit-dot sm" style="--a: 320deg"><span class="orbit-ico"><i class="bi bi-graph-up-arrow"></i></span></span>
+                        </div>
+                    </div>
                     <div class="hero-x-photo">
                         <img src="{{ $heroImage }}" alt="Business team celebrating a completed registration" width="1100" height="900" fetchpriority="high">
                     </div>
@@ -76,6 +75,23 @@
             </div>
         </div>
     </div>
+
+    @if ($categories->isNotEmpty())
+        {{-- Endless strip of categories; the list is repeated once so the loop is seamless --}}
+        <div class="hero-marquee">
+            <div class="hero-marquee-track">
+                @foreach ([false, true] as $copy)
+                    <div class="hero-marquee-group" @if ($copy) aria-hidden="true" @endif>
+                        @foreach ($categories as $item)
+                            <a href="{{ route('site.categories.show', $item['category']->slug) }}" @if ($copy) tabindex="-1" @endif>
+                                <i class="bi {{ $item['category']->icon }}"></i> {{ $item['label'] }}
+                            </a>
+                        @endforeach
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 </section>
 
 <div class="hero-x-stats">

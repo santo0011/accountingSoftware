@@ -60,7 +60,7 @@
             const ease = (t) => 1 - Math.pow(1 - t, 4); // fast start, soft finish
 
             const frame = (now) => {
-                const t = Math.min((now - start) / duration, 1);
+                const t = Math.min(Math.max((now - start) / duration, 0), 1); // first frame can be timestamped before `start`
                 const value = target * ease(t);
                 const text = grouped
                     ? Math.round(value).toLocaleString('en-IN')
@@ -225,6 +225,22 @@
             window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
         });
     }
+
+    // Hero headline: cycle through the phrases every few seconds.
+    document.querySelectorAll('[data-rotate]').forEach((wrap) => {
+        const items = [...wrap.children];
+        if (items.length < 2 || reduceMotion) return;
+        let i = 0;
+        setInterval(() => {
+            if (document.hidden) return;
+            const current = items[i];
+            i = (i + 1) % items.length;
+            current.classList.remove('is-active');
+            current.classList.add('is-leaving');
+            items[i].classList.add('is-active');
+            setTimeout(() => current.classList.remove('is-leaving'), 700);
+        }, 2800);
+    });
 
     // Fade sections up as they scroll into view. Content stays visible if this never runs.
     const reveals = document.querySelectorAll('[data-reveal]');
