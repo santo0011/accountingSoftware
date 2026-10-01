@@ -11,157 +11,99 @@
 @endphp
 
 @section('content')
-<section class="page-hero">
-    <div class="container">
-        <nav aria-label="breadcrumb"><ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('site.home') }}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('site.categories.show', $service->category->slug) }}">{{ $service->category->name }}</a></li>
-            <li class="breadcrumb-item active">{{ $service->name }}</li>
-        </ol></nav>
-        <div class="row g-4 g-lg-5 align-items-center">
+@php
+    $categoryUrl = route('site.categories.show', $service->category->slug);
+@endphp
+
+{{-- ============ HERO ============ --}}
+<section class="cat-hero sd-hero">
+    <div class="container position-relative">
+        <div class="sd-topline">
+            {{-- Goes back in history when the visitor came from this site, otherwise to the category page --}}
+            <a href="{{ $categoryUrl }}" class="sd-back" data-back><i class="bi bi-arrow-left"></i> Back</a>
+            <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ route('site.home') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('site.services.index') }}">Services</a></li>
+                <li class="breadcrumb-item"><a href="{{ $categoryUrl }}">{{ $service->category->name }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ $service->name }}</li>
+            </ol></nav>
+        </div>
+
+        <div class="row align-items-center g-4 g-lg-5">
             <div class="col-lg-7">
-                <div class="d-flex flex-wrap gap-2 mb-3">
-                    <span class="badge badge-soft-primary"><i class="bi {{ $service->category->icon }} me-1"></i>{{ $service->category->name }}</span>
-                    @if ($service->isRecurring())<span class="badge badge-soft-teal"><i class="bi bi-arrow-repeat me-1"></i>{{ $service->intervalLabel() }} service</span>@endif
-                    @if ($service->processing_time)<span class="badge badge-soft-secondary"><i class="bi bi-clock me-1"></i>{{ $service->processing_time }}</span>@endif
-                </div>
+                <a href="{{ $categoryUrl }}" class="sd-cat"><i class="bi {{ $service->category->icon }}"></i> {{ $service->category->name }}</a>
                 <h1>{{ $service->name }}</h1>
-                <p class="section-sub">{{ $service->short_description }}</p>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                    <a href="{{ $applyUrl }}" class="btn btn-cta btn-lg">Apply Now <i class="bi bi-arrow-right ms-1"></i></a>
-                    <a href="#pricing" class="btn btn-outline-primary btn-lg">View Pricing</a>
-                </div>
-                <ul class="hero-points">
-                    <li><i class="bi bi-check-circle-fill"></i>Expert assisted</li>
-                    <li><i class="bi bi-check-circle-fill"></i>100% online</li>
-                    <li><i class="bi bi-check-circle-fill"></i>Real-time tracking</li>
+                <p class="cat-hero-lead">{{ $service->short_description }}</p>
+                <ul class="cat-hero-facts">
+                    @if ($service->processing_time)<li><i class="bi bi-clock"></i> {{ $service->processing_time }}</li>@endif
+                    @if ($service->documents->isNotEmpty())<li><i class="bi bi-file-earmark-text"></i> {{ $service->documents->count() }} documents</li>@endif
+                    @if ($service->isRecurring())<li><i class="bi bi-arrow-repeat"></i> {{ $service->intervalLabel() }} service</li>@endif
+                    <li><i class="bi bi-laptop"></i> 100% online</li>
                 </ul>
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a href="{{ $applyUrl }}" class="btn btn-cta">Apply Now <i class="bi bi-arrow-right ms-1"></i></a>
+                    <a href="{{ route('site.contact', ['service' => $service->id]) }}" class="btn btn-ghost-light"><i class="bi bi-headset me-1"></i> Talk to an Expert</a>
+                </div>
             </div>
-            <div class="col-lg-5 d-none d-md-block">
-                <div class="page-hero-photo"><img src="{{ $service->imageUrl() }}" alt="{{ $service->name }}" width="800" height="534"></div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="sd-photo">
+                    <img src="{{ $service->imageUrl() }}" alt="{{ $service->name }}" width="800" height="534" fetchpriority="high">
+                    @if ($price > 0)
+                        <div class="sd-photo-price">
+                            <small>Starting from</small>
+                            <strong>{{ money($price, false) }}</strong>
+                            @if ($service->hasDiscount())<span>{{ $service->discountPercent() }}% off</span>@endif
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<nav class="service-nav" aria-label="Page sections">
+{{-- ============ BODY: only what a customer needs to decide and apply ============ --}}
+<section class="sd-body">
     <div class="container">
-        <div class="nav flex-nowrap overflow-auto">
-            <a class="nav-link" href="#overview">Overview</a>
-            @if ($service->who_needs)<a class="nav-link" href="#who">Who needs it</a>@endif
-            @if ($service->benefits)<a class="nav-link" href="#benefits">Benefits</a>@endif
-            @if ($service->documents->isNotEmpty())<a class="nav-link" href="#documents">Documents</a>@endif
-            @if ($service->steps->isNotEmpty())<a class="nav-link" href="#process">Process</a>@endif
-            <a class="nav-link" href="#pricing">Pricing</a>
-            @if ($service->faqs->isNotEmpty())<a class="nav-link" href="#faq">FAQ</a>@endif
-        </div>
-    </div>
-</nav>
-
-<section>
-    <div class="container">
-        <div class="row g-5">
-            <div class="col-lg-8">
-                <div class="content-block prose" id="overview">
-                    <h2>{{ $service->name }} — overview</h2>
-                    {!! $service->full_description !!}
-                </div>
-
-                @if ($service->who_needs)
-                    <div class="content-block" id="who">
-                        <h2>Who needs this service?</h2>
-                        <ul class="check-list row">
-                            @foreach ($service->who_needs as $item)<li class="col-md-6">{{ $item }}</li>@endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                @if ($service->benefits)
-                    <div class="content-block" id="benefits">
-                        <h2>Benefits</h2>
-                        <div class="row g-3">
-                            @foreach ($service->benefits as $benefit)
-                                <div class="col-md-6">
-                                    <div class="feature-box align-items-center py-3">
-                                        <span class="icon-bubble sm green"><i class="bi bi-check2-circle"></i></span>
-                                        <div class="fw-semibold text-navy small">{{ $benefit }}</div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
+        <div class="sd-layout">
+            <div class="sd-main">
                 @if ($service->documents->isNotEmpty())
-                    <div class="content-block" id="documents">
-                        <h2>Documents required</h2>
-                        <div class="row g-2">
+                    <div class="sd-card" id="documents">
+                        <h2 class="sd-h"><span><i class="bi bi-folder2-open"></i></span> Documents required</h2>
+                        <div class="sd-docs">
                             @foreach ($service->documents as $doc)
-                                <div class="col-md-6">
-                                    <div class="doc-item"><i class="bi bi-file-earmark-text"></i>
-                                        <span>{{ $doc->name }} @unless ($doc->is_mandatory)<small class="text-muted">(if applicable)</small>@endunless</span>
-                                    </div>
+                                <div class="sd-doc">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    <span>{{ $doc->name }}</span>
+                                    @unless ($doc->is_mandatory)<em>If applicable</em>@endunless
                                 </div>
                             @endforeach
                         </div>
-                        <p class="small text-muted mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>Accepted formats: PDF, JPG, PNG, DOC (max 5 MB each). You can also upload documents after applying.</p>
                     </div>
                 @endif
 
                 @if ($service->steps->isNotEmpty())
-                    <div class="content-block" id="process">
-                        <h2>Process &amp; timeline</h2>
-                        @foreach ($service->steps as $step)
-                            <div class="process-step">
-                                <span class="num">{{ $loop->iteration }}</span>
-                                <div>
-                                    <h3>{{ $step->title }} @if ($step->duration)<span class="badge badge-soft-secondary ms-1 fw-semibold">{{ $step->duration }}</span>@endif</h3>
-                                    <p>{{ $step->description }}</p>
-                                </div>
-                            </div>
-                        @endforeach
-                        @if ($service->processing_time)
-                            <div class="alert alert-info mb-0 mt-2"><i class="bi bi-clock me-2"></i>Estimated timeline: <strong>{{ $service->processing_time }}</strong>, subject to government processing.</div>
-                        @endif
+                    <div class="sd-card" id="process">
+                        <h2 class="sd-h"><span><i class="bi bi-signpost-split"></i></span> How it works</h2>
+                        <ol class="sd-flow">
+                            @foreach ($service->steps as $step)
+                                <li>
+                                    <span class="sd-step-no">{{ $loop->iteration }}</span>
+                                    <strong>{{ $step->title }}</strong>
+                                    @if ($step->duration)<small>{{ $step->duration }}</small>@endif
+                                </li>
+                            @endforeach
+                        </ol>
                     </div>
                 @endif
 
-                <div class="content-block" id="pricing">
-                    <h2>Pricing</h2>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                                <div>
-                                    <div class="fw-semibold text-navy">{{ $service->name }}</div>
-                                    <div class="small text-muted">Professional fee{{ $service->isRecurring() ? ' · billed '.strtolower($service->intervalLabel()) : '' }}</div>
-                                </div>
-                                <div class="text-end">
-                                    <div class="svc-price-label">Starting from</div>
-                                    <div class="d-flex align-items-baseline justify-content-end gap-2"><span class="fs-4 fw-bold text-navy">{{ money($price, false) }}</span>@if ($service->hasDiscount())<s class="text-muted small">{{ money($service->price, false) }}</s>@endif</div>
-                                    <div class="small text-muted">+ GST {{ rtrim(rtrim(number_format($service->gst_rate, 2), '0'), '.') }}% ({{ money($quote['tax']) }})</div>
-                                </div>
-                            </div>
-                            <div class="divider"></div>
-                            <ul class="check-list small mb-3">
-                                <li>Dedicated relationship manager &amp; expert professional</li>
-                                <li>Document preparation, review and filing</li>
-                                <li>Real-time tracking in your customer portal</li>
-                                <li>GST invoice for your records</li>
-                            </ul>
-                            <p class="small text-muted mb-3">Government fees, stamp duty and other statutory charges (if any) are payable at actuals.</p>
-                            <a href="{{ $applyUrl }}" class="btn btn-cta">Apply Now for {{ money($quote['total'], false) }} (incl. GST)</a>
-                        </div>
-                    </div>
-                </div>
-
                 @if ($service->faqs->isNotEmpty())
-                    <div class="content-block" id="faq">
-                        <h2>Frequently asked questions</h2>
-                        <div class="accordion" id="serviceFaq">
-                            @foreach ($service->faqs as $faq)
+                    <div class="sd-card" id="faq">
+                        <h2 class="sd-h"><span><i class="bi bi-question-circle"></i></span> Common questions</h2>
+                        <div class="accordion faq-v2" id="serviceFaq">
+                            @foreach ($service->faqs->take(3) as $faq)
                                 <div class="accordion-item">
-                                    <h3 class="accordion-header"><button class="accordion-button {{ $loop->first ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#sf{{ $faq->id }}">{{ $faq->question }}</button></h3>
-                                    <div id="sf{{ $faq->id }}" class="accordion-collapse collapse {{ $loop->first ? 'show' : '' }}" data-bs-parent="#serviceFaq"><div class="accordion-body text-muted">{{ $faq->answer }}</div></div>
+                                    <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sf{{ $faq->id }}">{{ $faq->question }}</button></h3>
+                                    <div id="sf{{ $faq->id }}" class="accordion-collapse collapse" data-bs-parent="#serviceFaq"><div class="accordion-body">{{ $faq->answer }}</div></div>
                                 </div>
                             @endforeach
                         </div>
@@ -169,43 +111,28 @@
                 @endif
             </div>
 
-            <aside class="col-lg-4 d-none d-lg-block">
-                <div class="price-card p-4 mt-4">
-                    <div class="svc-price-label mb-1">Starting from</div>
-                    <div class="d-flex align-items-baseline gap-2 mb-1">
-                        <span class="amount">{{ money($price, false) }}</span>
-                        @if ($service->hasDiscount())<s class="text-muted">{{ money($service->price, false) }}</s><span class="badge badge-soft-success">{{ $service->discountPercent() }}% off</span>@endif
+            {{-- Price & apply --}}
+            <aside class="sd-side">
+                <div class="sd-buy" id="pricing">
+                    <small class="sd-buy-label">Starting from</small>
+                    <div class="sd-buy-price">
+                        <strong>{{ money($price, false) }}</strong>
+                        @if ($service->hasDiscount())<s>{{ money($service->price, false) }}</s><span>{{ $service->discountPercent() }}% off</span>@endif
                     </div>
-                    <div class="small text-muted mb-3">+ GST · {{ $service->isRecurring() ? 'per '.str_replace('ly', '', strtolower($service->intervalLabel())) : 'one-time fee' }}</div>
-                    <a href="{{ $applyUrl }}" class="btn btn-cta w-100 btn-lg mb-2">Apply Now</a>
-                    <a href="{{ route('site.contact', ['service' => $service->id]) }}" class="btn btn-outline-primary w-100">Talk to an Expert</a>
-                    <div class="divider"></div>
-                    <ul class="list-unstyled small mb-0 d-grid gap-2">
-                        @if ($service->processing_time)<li><i class="bi bi-clock text-brand me-2"></i>{{ $service->processing_time }}</li>@endif
-                        <li><i class="bi bi-file-earmark-text text-brand me-2"></i>{{ $service->documents->count() }} documents required</li>
-                        <li><i class="bi bi-shield-check text-brand me-2"></i>Secure &amp; confidential</li>
-                        <li><i class="bi bi-telephone text-brand me-2"></i>{{ setting('company_phone') }}</li>
+                    <small class="sd-buy-sub">+ GST {{ rtrim(rtrim(number_format($service->gst_rate, 2), '0'), '.') }}% · {{ $service->isRecurring() ? 'billed '.strtolower($service->intervalLabel()) : 'one-time fee' }}</small>
+                    <ul class="sd-buy-incl">
+                        <li><i class="bi bi-check-circle-fill"></i> Expert CA / CS handles it</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Filing &amp; follow-up included</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Live tracking &amp; GST invoice</li>
                     </ul>
+                    <a href="{{ $applyUrl }}" class="btn btn-cta w-100">Apply Now · {{ money($quote['total'], false) }} <small class="fw-normal opacity-75">incl. GST</small></a>
+                    <a href="{{ route('site.contact', ['service' => $service->id]) }}" class="btn btn-outline-primary w-100">Talk to an Expert</a>
+                    <p class="sd-buy-fine">Government fees (if any) are extra, at actuals.</p>
                 </div>
             </aside>
         </div>
     </div>
 </section>
-
-@if ($related->isNotEmpty())
-<section class="section-sm bg-soft mt-4">
-    <div class="container">
-        <h2 class="h4 mb-4">Related services</h2>
-        <div class="row g-4">
-            @foreach ($related as $item)
-                <div class="col-sm-6 col-lg-3"><x-site.service-card :service="$item" /></div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
-
-<x-site.cta :title="'Get your '.$service->name.' done'" text="Apply online in minutes — our experts handle the rest." />
 
 <div class="mobile-apply-bar d-lg-none d-flex align-items-center justify-content-between gap-3">
     <div>

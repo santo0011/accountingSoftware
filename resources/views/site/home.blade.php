@@ -18,7 +18,7 @@
         <div class="row align-items-center g-5">
             <div class="col-lg-6 hero-x-copy">
                 <span class="hero-x-badge"><span class="dot"></span> Trusted by {{ setting('stat_customers', '10,000+') }} businesses across India</span>
-                <h1>Start, run &amp; grow your business <span class="hero-x-hl">without the paperwork.</span></h1>
+                <h1>Start, run &amp; grow your business <span class="hero-x-hl">without the <span class="hero-x-mark">paperwork<svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M3 14 C 60 4, 130 3, 297 10" /></svg></span>.</span></h1>
                 <p class="hero-x-lead">Company registration, GST, trademark and compliance — done online by expert CAs and lawyers, at fixed prices.</p>
 
                 <div class="hero-x-actions">
@@ -26,10 +26,10 @@
                     <a href="{{ route('site.contact') }}" class="btn btn-ghost-light btn-lg"><i class="bi bi-headset me-1"></i> Talk to an Expert</a>
                 </div>
 
-                <ul class="hero-x-points">
-                    <li><i class="bi bi-check-circle-fill"></i> 100% online</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Fixed pricing</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Expert-handled</li>
+                <ul class="hero-x-features">
+                    <li><i class="bi bi-laptop"></i><span><strong>100% online</strong><small>No office visits</small></span></li>
+                    <li><i class="bi bi-tag"></i><span><strong>Fixed pricing</strong><small>No hidden fees</small></span></li>
+                    <li><i class="bi bi-person-check"></i><span><strong>Expert-handled</strong><small>Qualified CAs &amp; CSs</small></span></li>
                 </ul>
             </div>
 

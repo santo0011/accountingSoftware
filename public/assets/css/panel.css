@@ -669,3 +669,7 @@ body.panel h1, body.panel h2, body.panel h3, .page-header h1, .kpi-value, .dash-
     .btn.is-loading::after { animation: none; display: none; }
     .btn-spinner { animation-duration: 1.4s; }
 }
+
+/* Sidebar header: logo + badge always fit on one line */
+.sidebar-badge { white-space: nowrap; flex-shrink: 0; letter-spacing: .05em; padding: .2rem .5rem; }
+.sidebar .sidebar-brand .brand img { max-width: 130px; max-height: 40px; padding: 4px 8px; }
