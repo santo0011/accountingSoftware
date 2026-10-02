@@ -29,7 +29,7 @@ class InvoiceController extends Controller implements HasMiddleware
         $totals = (clone $query)->toBase()->selectRaw('sum(total) as total, sum(cgst + sgst + igst) as tax')->first();
 
         return view('admin.invoices.index', [
-            'invoices' => $query->latest('invoice_date')->latest('id')->paginate(25)->withQueryString(),
+            'invoices' => $query->latest('invoice_date')->latest('id')->paginate(per_page(25))->withQueryString(),
             'totals' => $totals,
         ]);
     }

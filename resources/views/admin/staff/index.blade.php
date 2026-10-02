@@ -16,10 +16,11 @@
 <div class="table-card">
     <div class="table-responsive">
         <table class="table table-hover table-stack">
-            <thead><tr><th>Name</th><th>Contact</th><th>Role</th><th>Department</th><th>Open applications</th><th>Last login</th><th>Status</th><th></th></tr></thead>
+            <thead><tr><th class="col-sl">#</th><th>Name</th><th>Contact</th><th>Role</th><th>Department</th><th>Open applications</th><th>Last login</th><th>Status</th><th></th></tr></thead>
             <tbody>
             @forelse ($staff as $u)
                 <tr>
+                    <td class="col-sl" data-label="#">{{ $staff->firstItem() + $loop->index }}</td>
                     <td data-label="Name"><span class="d-inline-flex align-items-center gap-2"><span class="avatar sm">{{ $u->initials() }}</span><span><span class="fw-semibold text-navy d-block">{{ $u->name }}</span><small class="text-muted">{{ $u->staffProfile?->designation }}</small></span></span></td>
                     <td data-label="Contact">{{ $u->email }}<br><small class="text-muted">{{ $u->mobile }}</small></td>
                     <td data-label="Role">@foreach ($u->roles as $r)<span class="badge badge-soft-primary">{{ $roles[$r->name] ?? $r->name }}</span>@endforeach</td>
@@ -37,11 +38,11 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="8"><x-empty-state icon="bi-person-badge" title="No staff found" /></td></tr>
+                <tr><td colspan="9"><x-empty-state icon="bi-person-badge" title="No staff found" /></td></tr>
             @endforelse
             </tbody>
         </table>
     </div>
-    <div class="table-footer"><span>{{ $staff->total() }} staff</span>{{ $staff->links() }}</div>
+    <x-table-footer :items="$staff" label="staff" />
 </div>
 @endsection

@@ -26,8 +26,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+        Paginator::defaultView('pagination.panel'); // numbered pages with first / prev / next / last
 
-        Password::defaults(fn () => Password::min(8)->letters()->numbers());
+        Password::defaults(fn () => Password::min(6));
 
         // Super Admin passes every permission check.
         Gate::before(fn ($user) => $user->hasRole(config('rbac.super_admin_role')) ? true : null);

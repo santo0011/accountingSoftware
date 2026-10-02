@@ -3,10 +3,9 @@
 
 @section('content')
 <div class="auth-card wide">
-    <h1 class="h3 mb-1">Create your free account</h1>
-    <p class="text-muted mb-4">Apply for services, upload documents and track progress — all in one place.</p>
+    <h1 class="h3 mb-4">Create your free account</h1>
 
-    <form method="POST" action="{{ route('register') }}" novalidate>
+    <form method="POST" action="{{ route('register') }}" novalidate data-register-form>
         @csrf
         <div class="row">
             <x-form.input name="name" label="Full name" required autofocus autocomplete="name" col="col-md-6 mb-3" />
@@ -14,7 +13,7 @@
             <x-form.input name="email" label="Email address" type="email" required autocomplete="email" col="col-12 mb-3" />
             <x-form.input name="business_name" label="Business name" placeholder="Optional" col="col-md-6 mb-3" />
             <x-form.select name="business_type" label="Business type" :options="$businessTypes" placeholder="Select (optional)" col="col-md-6 mb-3" />
-            <x-form.input name="password" label="Password" type="password" required autocomplete="new-password" help="At least 8 characters with letters and numbers." col="col-md-6 mb-3" />
+            <x-form.input name="password" label="Password" type="password" required autocomplete="new-password" col="col-md-6 mb-3" />
             <x-form.input name="password_confirmation" label="Confirm password" type="password" required autocomplete="new-password" col="col-md-6 mb-3" />
         </div>
 
@@ -26,10 +25,37 @@
             @error('terms')<div class="invalid-feedback">{{ $message }}</div>@enderror
         </div>
 
-        <button type="submit" class="btn btn-cta w-100 btn-lg">Create Account</button>
+        <button type="submit" class="btn btn-primary auth-submit" data-submit>
+            <span class="auth-submit-label">Create Account</span>
+            <i class="bi bi-arrow-right auth-submit-icon"></i>
+            <span class="spinner-border spinner-border-sm auth-submit-spinner" aria-hidden="true"></span>
+        </button>
     </form>
 
     <div class="divider"></div>
-    <p class="text-center mb-0 small">Already have an account? <a href="{{ route('login') }}" class="fw-semibold">Login</a></p>
+    <p class="auth-alt mt-0">Already have an account? <a href="{{ route('login') }}" class="auth-link">Login</a></p>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Show a loader on the button while the account is created, and block double submits.
+    (function () {
+        var form = document.querySelector('[data-register-form]');
+        form.addEventListener('submit', function (e) {
+            var btn = form.querySelector('[data-submit]');
+            if (btn.disabled) { e.preventDefault(); return; }
+            btn.classList.add('loading');
+            btn.disabled = true;
+            btn.querySelector('.auth-submit-label').textContent = 'Creating account…';
+        });
+        // Coming back via the browser Back button: reset the button.
+        window.addEventListener('pageshow', function () {
+            var btn = form.querySelector('[data-submit]');
+            btn.classList.remove('loading');
+            btn.disabled = false;
+            btn.querySelector('.auth-submit-label').textContent = 'Create Account';
+        });
+    })();
+</script>
+@endpush

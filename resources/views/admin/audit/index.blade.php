@@ -15,10 +15,11 @@
 <div class="table-card">
     <div class="table-responsive">
         <table class="table table-stack">
-            <thead><tr><th>When</th><th>User</th><th>Area</th><th>Action</th><th>Changes</th></tr></thead>
+            <thead><tr><th class="col-sl">#</th><th>When</th><th>User</th><th>Area</th><th>Action</th><th>Changes</th></tr></thead>
             <tbody>
             @forelse ($activities as $a)
                 <tr>
+                    <td class="col-sl" data-label="#">{{ $activities->firstItem() + $loop->index }}</td>
                     <td data-label="When" class="text-nowrap">{{ $a->created_at->format('d M Y, h:i A') }}</td>
                     <td data-label="User">{{ $a->causer?->name ?? 'System' }}</td>
                     <td data-label="Area"><span class="badge badge-soft-secondary">{{ $a->log_name }}</span></td>
@@ -32,11 +33,11 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="5"><x-empty-state icon="bi-journal-text" title="No activity" /></td></tr>
+                <tr><td colspan="6"><x-empty-state icon="bi-journal-text" title="No activity" /></td></tr>
             @endforelse
             </tbody>
         </table>
     </div>
-    <div class="table-footer"><span>{{ $activities->total() }} entries</span>{{ $activities->links() }}</div>
+    <x-table-footer :items="$activities" label="entries" />
 </div>
 @endsection

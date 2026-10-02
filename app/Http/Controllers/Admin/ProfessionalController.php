@@ -34,7 +34,7 @@ class ProfessionalController extends Controller implements HasMiddleware
             ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w->where('name', 'like', '%'.$request->q.'%')->orWhere('specialization', 'like', '%'.$request->q.'%')))
             ->when($request->filled('type'), fn ($q) => $q->where('professional_type', $request->type))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
-            ->orderBy('name')->paginate(20)->withQueryString();
+            ->orderBy('name')->paginate(per_page(20))->withQueryString();
 
         return view('admin.professionals.index', compact('professionals'));
     }

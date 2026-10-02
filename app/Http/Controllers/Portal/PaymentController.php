@@ -27,7 +27,7 @@ class PaymentController extends Controller
             ->with('service:id,name', 'payments')->latest()->get();
 
         $payments = $customer->payments()->with('application:id,application_no,service_id', 'application.service:id,name', 'invoice:id,invoice_no')
-            ->latest()->paginate(15);
+            ->latest()->paginate(per_page(15))->withQueryString();
 
         return view('portal.payments.index', compact('dues', 'payments'));
     }

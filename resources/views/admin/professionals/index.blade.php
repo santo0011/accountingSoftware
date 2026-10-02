@@ -16,10 +16,11 @@
 <div class="table-card">
     <div class="table-responsive">
         <table class="table table-hover table-stack">
-            <thead><tr><th>Professional</th><th>Type</th><th>Registration no.</th><th>Specialization</th><th>Open apps</th><th>Login</th><th>Status</th><th></th></tr></thead>
+            <thead><tr><th class="col-sl">#</th><th>Professional</th><th>Type</th><th>Registration no.</th><th>Specialization</th><th>Open apps</th><th>Login</th><th>Status</th><th></th></tr></thead>
             <tbody>
             @forelse ($professionals as $p)
                 <tr>
+                    <td class="col-sl" data-label="#">{{ $professionals->firstItem() + $loop->index }}</td>
                     <td data-label="Professional"><span class="fw-semibold text-navy">{{ $p->name }}</span><br><small class="text-muted">{{ $p->email }} {{ $p->phone }}</small></td>
                     <td data-label="Type">{{ $p->typeLabel() }}</td>
                     <td data-label="Registration no.">{{ $p->registration_no ?? '—' }}</td>
@@ -37,11 +38,11 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="8"><x-empty-state icon="bi-mortarboard" title="No professionals found" /></td></tr>
+                <tr><td colspan="9"><x-empty-state icon="bi-mortarboard" title="No professionals found" /></td></tr>
             @endforelse
             </tbody>
         </table>
     </div>
-    <div class="table-footer"><span>{{ $professionals->total() }} professionals</span>{{ $professionals->links() }}</div>
+    <x-table-footer :items="$professionals" label="professionals" />
 </div>
 @endsection

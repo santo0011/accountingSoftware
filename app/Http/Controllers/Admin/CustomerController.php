@@ -41,7 +41,7 @@ class CustomerController extends Controller implements HasMiddleware
             })
             ->when($request->filled('status'), fn ($q) => $q->whereHas('user', fn ($u) => $u->where('status', $request->status)))
             ->when($request->filled('state'), fn ($q) => $q->where('state', $request->state))
-            ->latest()->paginate(20)->withQueryString();
+            ->latest()->paginate(per_page(20))->withQueryString();
 
         return view('admin.customers.index', compact('customers'));
     }
@@ -66,20 +66,21 @@ class CustomerController extends Controller implements HasMiddleware
 
     public function show(Customer $customer): View
     {
+        // Full history for the customer profile (one customer's records, so no paging needed).
         $customer->load([
             'user', 'businesses',
-            'applications' => fn ($q) => $q->with('service:id,name')->latest(),
-            'payments' => fn ($q) => $q->latest()->limit(10),
-            'invoices' => fn ($q) => $q->latest()->limit(10),
-            'customerServices.service:id,name', 'customerServices.business:id,name',
-            'complianceRecords' => fn ($q) => $q->pending()->orderBy('due_date')->limit(10),
-            'tickets' => fn ($q) => $q->latest()->limit(5),
+            'applications' => fn ($q) => $q->with(['service:id,name,icon,service_category_id', 'service.category:id,icon', 'business:id,name',
+                'staff:id,name', 'professional:id,name', 'invoice'])->withCount('documents')->latest(),
+            'payments' => fn ($q) => $q->with('application:id,application_no')->latest(),
+            'invoices' => fn ($q) => $q->latest('invoice_date')->latest('id'),
+            'customerServices' => fn ($q) => $q->with(['service:id,name,icon,service_category_id', 'service.category:id,icon', 'business:id,name'])->latest('start_date'),
+            'complianceRecords' => fn ($q) => $q->orderByRaw('completed_at is not null')->orderBy('due_date'),
+            'tickets' => fn ($q) => $q->latest(),
         ]);
 
-        $totals = [
-            'billed' => $customer->invoices()->sum('total'),
-            'paid' => $customer->payments()->where('status', 'paid')->sum('amount'),
-        ];
+        $billed = (float) $customer->invoices->sum('total');
+        $paid = (float) $customer->payments->filter(fn ($p) => $p->status->value === 'paid')->sum('amount');
+        $totals = ['billed' => $billed, 'paid' => $paid, 'outstanding' => max(0, $billed - $paid)];
 
         return view('admin.customers.show', compact('customer', 'totals'));
     }

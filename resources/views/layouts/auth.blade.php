@@ -4,7 +4,7 @@
     @include('partials.head')
     <meta name="robots" content="noindex">
     <link rel="stylesheet" href="{{ asset('assets/css/site.css') }}?v=57">
-    <link rel="stylesheet" href="{{ asset('assets/css/auth.css') }}?v=23">
+    <link rel="stylesheet" href="{{ asset('assets/css/auth.css') }}?v=26">
 </head>
 <body class="auth-body">
 @php($authImage = setting('hero_image') ? storage_asset(setting('hero_image')) : asset('images/site/hero.webp'))

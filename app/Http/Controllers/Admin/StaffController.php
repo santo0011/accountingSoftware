@@ -32,7 +32,7 @@ class StaffController extends Controller implements HasMiddleware
             ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w->where('name', 'like', '%'.$request->q.'%')->orWhere('email', 'like', '%'.$request->q.'%')))
             ->when($request->filled('role'), fn ($q) => $q->role($request->role))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
-            ->orderBy('name')->paginate(20)->withQueryString();
+            ->orderBy('name')->paginate(per_page(20))->withQueryString();
 
         return view('admin.staff.index', ['staff' => $staff, 'roles' => $this->roles()]);
     }

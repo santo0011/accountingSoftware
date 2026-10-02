@@ -20,10 +20,11 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th>Service</th><th>Category</th><th>Price</th><th>Type</th><th>Applications</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Service</th><th>Category</th><th>Price</th><th>Type</th><th>Applications</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
                 <tbody>
                 @foreach ($services as $s)
                     <tr>
+                        <td class="col-sl" data-label="#">{{ $services->firstItem() + $loop->index }}</td>
                         <td data-label="Service"><span class="d-inline-flex align-items-center gap-2"><i class="bi {{ $s->iconClass() }} text-brand fs-5"></i><span><span class="fw-semibold text-navy">{{ $s->name }}</span> @if ($s->is_featured)<i class="bi bi-star-fill text-warning small" title="Featured"></i>@endif<br><small class="text-muted">/services/{{ $s->slug }}</small></span></span></td>
                         <td data-label="Category">{{ $s->category?->name }}</td>
                         <td data-label="Price">@if ($s->hasDiscount())<span class="price-old small">{{ money($s->price, false) }}</span><br>@endif<strong>{{ money($s->effectivePrice(), false) }}</strong></td>
@@ -42,7 +43,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="table-footer"><span>{{ $services->total() }} services</span>{{ $services->links() }}</div>
+        <x-table-footer :items="$services" label="services" />
     @endif
 </div>
 @endsection

@@ -41,7 +41,7 @@ class ComplianceController extends Controller implements HasMiddleware
             ->when($request->filled('customer'), fn ($q) => $q->where('customer_id', $request->customer))
             ->when($request->filled('from'), fn ($q) => $q->whereDate('due_date', '>=', $request->from))
             ->when($request->filled('to'), fn ($q) => $q->whereDate('due_date', '<=', $request->to))
-            ->orderBy('due_date')->paginate(25)->withQueryString();
+            ->orderBy('due_date')->paginate(per_page(25))->withQueryString();
 
         return view('admin.compliance.index', [
             'records' => $records,

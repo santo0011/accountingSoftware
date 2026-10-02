@@ -32,7 +32,7 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="logo">Logo</label>
                     <input type="file" name="logo" id="logo" class="form-control @error('logo') is-invalid @enderror" accept=".png,.jpg,.jpeg,.webp"
-                        data-image-preview="#logoPreview" data-max-kb="1024">
+                        data-image-preview="#logoPreview" data-max-kb="2048">
                     @error('logo')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     <div class="img-preview img-preview-sm mt-2" id="logoPreview">
                         <div class="img-preview-frame">

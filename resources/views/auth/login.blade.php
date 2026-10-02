@@ -22,13 +22,18 @@
 
     <form method="POST" action="{{ route('login') }}" novalidate data-auth-form>
         @csrf
+        {{-- Customers: mobile number (default). Admin / staff: email, via the link below the form. --}}
+        @php($staff = str_contains((string) old('login'), '@') || request()->has('staff'))
         <div class="auth-field">
-            <label for="login" class="form-label">Email or mobile number</label>
-            <div class="auth-input">
-                <i class="bi bi-person-fill"></i>
-                <input type="text" name="login" id="login" value="{{ old('login') }}" class="form-control @error('login') is-invalid @enderror"
-                    required autofocus autocomplete="username" placeholder="you@company.com or 98XXXXXXXX"
-                    data-required-msg="Please enter your email address or mobile number.">
+            <label for="login" class="form-label" data-login-label>{{ $staff ? 'Work email' : 'Mobile number' }}</label>
+            <div class="auth-input {{ $staff ? '' : 'has-prefix' }}" data-login-wrap>
+                <i class="bi {{ $staff ? 'bi-envelope-fill' : 'bi-phone-fill' }}" data-login-icon></i>
+                <span class="auth-prefix" data-login-prefix @if ($staff) hidden @endif>+91</span>
+                <input type="{{ $staff ? 'email' : 'tel' }}" name="login" id="login" value="{{ old('login') }}" class="form-control @error('login') is-invalid @enderror"
+                    required autofocus autocomplete="username"
+                    inputmode="{{ $staff ? 'email' : 'numeric' }}" maxlength="{{ $staff ? 191 : 14 }}"
+                    placeholder="{{ $staff ? 'you@company.com' : '10-digit mobile number' }}"
+                    data-required-msg="{{ $staff ? 'Please enter your email address.' : 'Please enter your mobile number.' }}">
             </div>
             <div class="auth-error" data-error-for="login" hidden></div>
         </div>
@@ -61,7 +66,12 @@
         </button>
     </form>
 
-    <p class="auth-alt">Don't have an account? <a href="{{ route('register') }}" class="auth-link">Create a free account</a></p>
+    <p class="auth-alt" data-customer-only @if ($staff) hidden @endif>Don't have an account? <a href="{{ route('register') }}" class="auth-link">Create a free account</a></p>
+
+    <button type="button" class="auth-staff-link" data-staff-toggle>
+        <span data-staff-off @if ($staff) hidden @endif><i class="bi bi-person-badge"></i> Admin / Staff? Sign in with email</span>
+        <span data-staff-on @unless ($staff) hidden @endunless><i class="bi bi-phone"></i> Customer? Sign in with mobile number</span>
+    </button>
 
     <div class="auth-secure"><i class="bi bi-shield-lock-fill"></i> Protected by 256-bit SSL encryption</div>
 
@@ -70,7 +80,7 @@
             <span>Demo:</span>
             <button type="button" data-demo="admin@bizsetu.test">Admin</button>
             <button type="button" data-demo="rahul.staff@bizsetu.test">Staff</button>
-            <button type="button" data-demo="customer@bizsetu.test">Customer</button>
+            <button type="button" data-demo="9876500001">Customer</button>
         </div>
     @endif
 </div>
@@ -90,6 +100,34 @@
             box.innerHTML = message ? '<i class="bi bi-exclamation-circle"></i> ' + message : '';
         }
 
+        // Customer (mobile) <-> Admin / staff (email) switch on the same "login" field.
+        var staff = login.type === 'email';
+        function setStaff(on) {
+            if (on === staff) return;
+            staff = on;
+            document.querySelector('[data-login-label]').textContent = on ? 'Work email' : 'Mobile number';
+            document.querySelector('[data-login-icon]').className = 'bi ' + (on ? 'bi-envelope-fill' : 'bi-phone-fill');
+            document.querySelector('[data-login-prefix]').hidden = on;
+            document.querySelector('[data-login-wrap]').classList.toggle('has-prefix', !on);
+            document.querySelector('[data-staff-off]').hidden = on;
+            document.querySelector('[data-staff-on]').hidden = !on;
+            document.querySelector('[data-customer-only]').hidden = on;
+            login.type = on ? 'email' : 'tel';
+            login.inputMode = on ? 'email' : 'numeric';
+            login.maxLength = on ? 191 : 14;
+            login.placeholder = on ? 'you@company.com' : '10-digit mobile number';
+            login.dataset.requiredMsg = on ? 'Please enter your email address.' : 'Please enter your mobile number.';
+            login.value = '';
+            setError(login, '');
+            login.focus();
+        }
+        document.querySelector('[data-staff-toggle]').addEventListener('click', function () { setStaff(!staff); });
+
+        // Mobile mode: digits only (spaces allowed while typing)
+        login.addEventListener('input', function () {
+            if (!staff) login.value = login.value.replace(/[^\d ]/g, '');
+        });
+
         // Friendly client-side check before posting; the server still validates everything.
         form.addEventListener('submit', function (e) {
             var firstBad = null;
@@ -98,6 +136,13 @@
                 setError(input, bad ? input.dataset.requiredMsg : '');
                 if (bad && !firstBad) firstBad = input;
             });
+            if (!firstBad && !staff) {
+                var digits = login.value.replace(/\D/g, '').slice(-10);
+                if (!/^[6-9]\d{9}$/.test(digits)) {
+                    setError(login, 'Enter a valid 10-digit mobile number.');
+                    firstBad = login;
+                }
+            }
             if (firstBad) { e.preventDefault(); firstBad.focus(); return; }
             var btn = form.querySelector('[data-submit]');
             btn.classList.add('loading');
@@ -126,6 +171,7 @@
 
         document.querySelectorAll('[data-demo]').forEach(function (btn) {
             btn.addEventListener('click', function () {
+                setStaff(btn.dataset.demo.indexOf("@") > -1);
                 login.value = btn.dataset.demo;
                 password.value = 'Password@123';
                 setError(login, ''); setError(password, '');

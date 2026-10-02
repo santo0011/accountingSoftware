@@ -47,7 +47,7 @@ class LeadController extends Controller implements HasMiddleware
             ->when($request->filled('source'), fn ($q) => $q->where('source', $request->source))
             ->when($request->filled('assigned'), fn ($q) => $request->assigned === 'none' ? $q->whereNull('assigned_to') : $q->where('assigned_to', $request->assigned))
             ->when($request->boolean('followup_due'), fn ($q) => $q->whereNotNull('next_followup_at')->where('next_followup_at', '<=', now()->endOfDay()))
-            ->latest()->paginate(20)->withQueryString();
+            ->latest()->paginate(per_page(20))->withQueryString();
 
         $counts = Lead::query()->when(! $user->can('leads.view_all'), fn ($q) => $q->where('assigned_to', $user->id))
             ->toBase()->selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status');

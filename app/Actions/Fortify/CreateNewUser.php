@@ -41,6 +41,6 @@ class CreateNewUser implements CreatesNewUsers
             'business_name' => $input['business_name'] ?? null,
             'business_type' => $input['business_type'] ?? null,
             'source' => 'website',
-        ])->user;
+        ], verified: true)->user; // no email verification step: customers go straight to their account
     }
 }

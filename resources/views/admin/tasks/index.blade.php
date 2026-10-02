@@ -26,10 +26,11 @@
 <div class="table-card">
     <div class="table-responsive">
         <table class="table table-hover table-stack">
-            <thead><tr><th></th><th>Task</th><th>Related to</th><th>Assigned to</th><th>Priority</th><th>Due</th><th>Status</th><th></th></tr></thead>
+            <thead><tr><th class="col-sl">#</th><th></th><th>Task</th><th>Related to</th><th>Assigned to</th><th>Priority</th><th>Due</th><th>Status</th><th></th></tr></thead>
             <tbody>
             @forelse ($tasks as $task)
                 <tr>
+                    <td class="col-sl" data-label="#">{{ $tasks->firstItem() + $loop->index }}</td>
                     <td class="td-actions" style="width:40px">
                         @if ($task->status !== \App\Enums\TaskStatus::Completed)
                             <form method="POST" action="{{ route('admin.tasks.complete', $task) }}">@csrf<button class="btn btn-sm btn-light btn-icon" title="Mark complete" data-no-lock><i class="bi bi-check2"></i></button></form>
@@ -55,11 +56,11 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="8"><x-empty-state icon="bi-check2-all" title="No tasks" text="Nothing pending here." /></td></tr>
+                <tr><td colspan="9"><x-empty-state icon="bi-check2-all" title="No tasks" text="Nothing pending here." /></td></tr>
             @endforelse
             </tbody>
         </table>
     </div>
-    <div class="table-footer"><span>{{ $tasks->total() }} tasks</span>{{ $tasks->links() }}</div>
+    <x-table-footer :items="$tasks" label="tasks" />
 </div>
 @endsection

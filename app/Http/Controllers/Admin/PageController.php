@@ -27,7 +27,7 @@ class PageController extends Controller implements HasMiddleware
 
     public function index(): View
     {
-        return view('admin.cms.pages.index', ['pages' => Page::orderBy('title')->get(), 'system' => self::SYSTEM]);
+        return view('admin.cms.pages.index', ['pages' => Page::orderBy('title')->paginate(per_page(20))->withQueryString(), 'system' => self::SYSTEM]);
     }
 
     public function create(): View

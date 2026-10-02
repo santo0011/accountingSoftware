@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
@@ -34,7 +33,7 @@ class FortifyServiceProvider extends ServiceProvider
             public function toResponse($request)
             {
                 return redirect()->intended(route('dashboard'))
-                    ->with('success', 'Welcome! Please verify your email address to continue.');
+                    ->with('success', 'Welcome! Your account is ready.');
             }
         });
     }
@@ -53,18 +52,29 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetPasswordView(fn (Request $request) => view('auth.reset-password', ['request' => $request]));
         Fortify::verifyEmailView(fn () => view('auth.verify-email'));
 
-        // Login with email OR mobile number in one field.
+        // Customers sign in with their mobile number; admin / staff / professionals with their email.
         Fortify::authenticateUsing(function (Request $request) {
             $login = trim((string) $request->input('login'));
-            $mobile = preg_replace('/\D/', '', $login);
-            $mobile = strlen($mobile) > 10 ? substr($mobile, -10) : $mobile;
+            $byEmail = str_contains($login, '@');
 
-            $user = filter_var($login, FILTER_VALIDATE_EMAIL)
-                ? User::where('email', Str::lower($login))->first()
-                : User::where('mobile', $mobile)->first();
+            if ($byEmail) {
+                $user = User::where('email', mb_strtolower($login))->first();
+            } else {
+                $mobile = preg_replace('/\D/', '', $login);
+                $mobile = strlen($mobile) > 10 ? substr($mobile, -10) : $mobile;
+                $user = strlen($mobile) === 10 ? User::where('mobile', $mobile)->first() : null;
+            }
 
             if (! $user || ! Hash::check((string) $request->input('password'), $user->password)) {
                 return null;
+            }
+
+            // Checked only after the password matches, so this never reveals which accounts exist.
+            if ($byEmail && $user->isCustomer()) {
+                throw ValidationException::withMessages(['login' => 'Customers sign in with their mobile number.']);
+            }
+            if (! $byEmail && ! $user->isCustomer()) {
+                throw ValidationException::withMessages(['login' => 'Staff and admin sign in with their email address.']);
             }
 
             if (! $user->isActive()) {
@@ -77,7 +87,10 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower((string) $request->input('login')).'|'.$request->ip());
+            // Same key however the email / number is typed (case, spaces, +91, leading 0)
+            $login = trim((string) $request->input('login'));
+            $key = str_contains($login, '@') ? mb_strtolower($login) : substr(preg_replace('/\D/', '', $login), -10);
+            $throttleKey = $key.'|'.$request->ip();
 
             return Limit::perMinute(5)->by($throttleKey);
         });

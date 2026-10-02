@@ -308,3 +308,32 @@ body.auth-body {
 
 /* Photo panel stays still */
 .auth-visual-img { animation: none; }
+
+/* Mobile / Email switch on the login form */
+.auth-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: 1.1rem; border-radius: 12px; background: #eef2f7; }
+.auth-switch button {
+    display: flex; align-items: center; justify-content: center; gap: .4rem; height: 38px; border: 0; border-radius: 9px; background: none;
+    font-size: .85rem; font-weight: 600; color: #667085; transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.auth-switch button:hover { color: var(--brand-navy); }
+.auth-switch button.active { background: #fff; color: var(--brand-navy); box-shadow: 0 2px 8px -3px rgba(11, 42, 74, .25); }
+.auth-switch button.active .bi { color: var(--brand-green); }
+.auth-prefix {
+    position: absolute; left: 2.45rem; top: 50%; transform: translateY(-50%); font-size: .9rem; font-weight: 600; color: var(--brand-navy);
+    padding-right: .55rem; border-right: 1px solid #dfe7f2; line-height: 1.2; pointer-events: none;
+}
+.auth-input.has-prefix .form-control { padding-left: 5.1rem; letter-spacing: .03em; }
+
+/* "Admin / Staff? Sign in with email" switch under the form */
+.auth-staff-link {
+    display: flex; align-items: center; justify-content: center; gap: .4rem; width: 100%; margin-top: .9rem; padding: .55rem;
+    border: 1px dashed #d3deec; border-radius: 10px; background: none; font-size: .82rem; font-weight: 600; color: #667085;
+    transition: border-color .2s ease, color .2s ease, background .2s ease;
+}
+.auth-staff-link:hover { border-style: solid; border-color: var(--brand-blue); color: var(--brand-blue); background: #f5f9fe; }
+.auth-staff-link span { display: inline-flex; align-items: center; gap: .4rem; }
+.auth-staff-link span[hidden] { display: none; }
+
+/* "Don't have an account? Create a free account" — larger, easier to read */
+.auth-alt { font-size: .95rem; }
+.auth-alt .auth-link { font-size: 1rem; }

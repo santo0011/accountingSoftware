@@ -9,10 +9,11 @@
 <div class="table-card">
     <div class="table-responsive">
         <table class="table table-hover table-stack">
-            <thead><tr><th>#</th><th>Category</th><th>Slug</th><th>Services</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+            <thead><tr><th class="col-sl">#</th><th>Order</th><th>Category</th><th>Slug</th><th>Services</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
             <tbody>
             @foreach ($categories as $cat)
                 <tr>
+                    <td class="col-sl" data-label="#">{{ $categories->firstItem() + $loop->index }}</td>
                     <td data-label="Order">{{ $cat->sort_order }}</td>
                     <td data-label="Category"><span class="d-inline-flex align-items-center gap-2"><span class="icon-bubble sm"><i class="bi {{ $cat->icon }}"></i></span><span><span class="fw-semibold text-navy d-block">{{ $cat->name }}</span><small class="text-muted">{{ \Illuminate\Support\Str::limit($cat->tagline, 60) }}</small></span></span></td>
                     <td data-label="Slug"><code>{{ $cat->slug }}</code></td>
@@ -28,5 +29,6 @@
             </tbody>
         </table>
     </div>
+    <x-table-footer :items="$categories" label="categories" />
 </div>
 @endsection

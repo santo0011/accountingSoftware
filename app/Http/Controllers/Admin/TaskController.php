@@ -37,7 +37,7 @@ class TaskController extends Controller implements HasMiddleware
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status), fn ($q) => $q->whereIn('status', [TaskStatus::Pending, TaskStatus::InProgress]))
             ->when($request->filled('priority'), fn ($q) => $q->where('priority', $request->priority))
             ->when($request->filled('assignee') && $scope !== 'mine', fn ($q) => $q->where('assigned_to', $request->assignee))
-            ->orderByRaw('due_date is null')->orderBy('due_date')->paginate(25)->withQueryString();
+            ->orderByRaw('due_date is null')->orderBy('due_date')->paginate(per_page(25))->withQueryString();
 
         return view('admin.tasks.index', ['tasks' => $tasks, 'scope' => $scope] + $this->options());
     }

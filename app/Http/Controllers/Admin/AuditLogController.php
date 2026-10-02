@@ -23,7 +23,7 @@ class AuditLogController extends Controller implements HasMiddleware
             ->when($request->filled('q'), fn ($q) => $q->where('description', 'like', '%'.$request->q.'%'))
             ->when($request->filled('from'), fn ($q) => $q->whereDate('created_at', '>=', $request->from))
             ->when($request->filled('to'), fn ($q) => $q->whereDate('created_at', '<=', $request->to))
-            ->latest()->paginate(30)->withQueryString();
+            ->latest()->paginate(per_page(30))->withQueryString();
 
         $logs = Activity::query()->distinct()->orderBy('log_name')->pluck('log_name');
 

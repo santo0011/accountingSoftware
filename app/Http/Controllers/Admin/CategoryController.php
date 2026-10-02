@@ -23,7 +23,7 @@ class CategoryController extends Controller implements HasMiddleware
 
     public function index(): View
     {
-        $categories = ServiceCategory::withCount('services')->orderBy('sort_order')->get();
+        $categories = ServiceCategory::withCount('services')->orderBy('sort_order')->paginate(per_page(20))->withQueryString();
 
         return view('admin.categories.index', compact('categories'));
     }

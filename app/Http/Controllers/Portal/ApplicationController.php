@@ -27,7 +27,7 @@ class ApplicationController extends Controller
             ->when($filter === 'active', fn ($q) => $q->active())
             ->when($filter === 'completed', fn ($q) => $q->where('status', ApplicationStatus::Completed))
             ->when($filter === 'closed', fn ($q) => $q->whereIn('status', [ApplicationStatus::Rejected, ApplicationStatus::Cancelled]))
-            ->latest()->paginate(10)->withQueryString();
+            ->latest()->paginate(per_page(10))->withQueryString();
 
         return view('portal.applications.index', compact('applications', 'filter'));
     }
