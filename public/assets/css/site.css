@@ -1784,3 +1784,14 @@ a.growth-label:hover { color: var(--brand-blue); }
 }
 /* Tight desktop widths: show just the avatar */
 @media (min-width: 992px) and (max-width: 1279.98px) { .hdr-account { padding-right: .3rem; } .hdr-account-label { display: none; } }
+
+/* Website logo: larger in the header, footer and mobile menu */
+.site-header .brand img { max-height: 54px; max-width: 240px; }
+.site-footer .brand img { max-height: 56px; max-width: 240px; padding: 6px 12px; }
+.offcanvas .brand img { max-height: 46px; max-width: 200px; }
+@media (max-width: 991.98px) { .site-header .brand img { max-height: 44px; max-width: 190px; } }
+@media (min-width: 992px) and (max-width: 1279.98px) { .site-header .brand img { max-height: 46px; max-width: 190px; } .site-header .navbar-brand { margin-right: .75rem !important; } }
+/* Logo a little smaller */
+.site-header .brand img { max-height: 46px; max-width: 200px; }
+@media (max-width: 991.98px) { .site-header .brand img { max-height: 40px; max-width: 170px; } }
+@media (min-width: 992px) and (max-width: 1279.98px) { .site-header .brand img { max-height: 40px; max-width: 170px; } }

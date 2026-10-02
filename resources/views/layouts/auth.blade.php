@@ -3,7 +3,7 @@
 <head>
     @include('partials.head')
     <meta name="robots" content="noindex">
-    <link rel="stylesheet" href="{{ asset('assets/css/site.css') }}?v=57">
+    <link rel="stylesheet" href="{{ asset('assets/css/site.css') }}?v=59">
     <link rel="stylesheet" href="{{ asset('assets/css/auth.css') }}?v=26">
 </head>
 <body class="auth-body">
