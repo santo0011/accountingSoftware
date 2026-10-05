@@ -21,7 +21,7 @@ class FaqController extends Controller implements HasMiddleware
 
     public function index(): View
     {
-        return view('admin.cms.faqs.index', ['faqs' => Faq::orderBy('group')->orderBy('sort_order')->get()]);
+        return view('admin.cms.faqs.index', ['faqs' => Faq::orderBy('group')->orderBy('sort_order')->paginate(per_page(20))->withQueryString()]);
     }
 
     public function create(): View

@@ -51,7 +51,7 @@ class ApplicationController extends Controller implements HasMiddleware
             ->when($request->filled('staff'), fn ($q) => $request->staff === 'unassigned' ? $q->whereNull('assigned_staff_id') : $q->where('assigned_staff_id', $request->staff))
             ->when($request->filled('from'), fn ($q) => $q->whereDate('created_at', '>=', $request->from))
             ->when($request->filled('to'), fn ($q) => $q->whereDate('created_at', '<=', $request->to))
-            ->latest()->paginate(20)->withQueryString();
+            ->latest()->paginate(per_page(20))->withQueryString();
 
         return view('admin.applications.index', [
             'applications' => $applications,

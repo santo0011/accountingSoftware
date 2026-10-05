@@ -15,7 +15,7 @@ class InvoiceController extends Controller
     {
         $invoices = $request->user()->customer->invoices()
             ->with('application:id,application_no,service_id', 'application.service:id,name')
-            ->latest('invoice_date')->latest('id')->paginate(15);
+            ->latest('invoice_date')->latest('id')->paginate(per_page(15))->withQueryString();
 
         return view('portal.invoices.index', compact('invoices'));
     }

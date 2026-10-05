@@ -19,7 +19,7 @@ class SupportController extends Controller
 
     public function index(Request $request): View
     {
-        $tickets = $request->user()->customer->tickets()->withCount('messages')->latest('last_reply_at')->paginate(15);
+        $tickets = $request->user()->customer->tickets()->withCount('messages')->latest('last_reply_at')->paginate(per_page(15))->withQueryString();
 
         return view('portal.support.index', compact('tickets'));
     }

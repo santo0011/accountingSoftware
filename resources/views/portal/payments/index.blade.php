@@ -33,10 +33,11 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th>Payment</th><th>Application</th><th>Method</th><th>Reference</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Payment</th><th>Application</th><th>Method</th><th>Reference</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead>
                 <tbody>
                 @foreach ($payments as $payment)
                     <tr>
+                        <td class="col-sl" data-label="#">{{ $payments->firstItem() + $loop->index }}</td>
                         <td data-label="Payment" class="fw-semibold">{{ $payment->payment_no }}</td>
                         <td data-label="Application">@if ($payment->application)<a href="{{ route('portal.applications.show', $payment->application) }}">{{ $payment->application->application_no }}</a><br><small class="text-muted">{{ $payment->application->service->name }}</small>@else — @endif</td>
                         <td data-label="Method">{{ $payment->methodLabel() }}</td>
@@ -50,7 +51,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="table-footer"><span>{{ $payments->total() }} payments</span>{{ $payments->links() }}</div>
+        <x-table-footer :items="$payments" label="payments" />
     @endif
 </div>
 @endsection

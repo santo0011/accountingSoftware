@@ -25,7 +25,7 @@ class DocumentController extends Controller
             ->with('application:id,application_no,service_id', 'application.service:id,name')
             ->when($request->query('type') === 'deliverable', fn ($q) => $q->where('type', ApplicationDocument::TYPE_DELIVERABLE))
             ->when($request->query('type') === 'uploaded', fn ($q) => $q->where('type', ApplicationDocument::TYPE_CUSTOMER))
-            ->latest()->paginate(15)->withQueryString();
+            ->latest()->paginate(per_page(15))->withQueryString();
 
         $attention = ApplicationDocument::whereIn('application_id', $applicationIds)
             ->where('status', DocumentStatus::ReuploadRequired)->with('application:id,application_no')->get();

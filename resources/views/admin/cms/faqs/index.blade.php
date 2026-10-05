@@ -9,10 +9,11 @@
 
 <div class="table-card">
     <table class="table table-hover table-stack">
-        <thead><tr><th>Question</th><th>Group</th><th>Order</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th class="col-sl">#</th><th>Question</th><th>Group</th><th>Order</th><th>Status</th><th></th></tr></thead>
         <tbody>
         @forelse ($faqs as $faq)
             <tr>
+                <td class="col-sl" data-label="#">{{ $faqs->firstItem() + $loop->index }}</td>
                 <td data-label="Question"><span class="fw-semibold text-navy">{{ $faq->question }}</span><br><small class="text-muted">{{ \Illuminate\Support\Str::limit($faq->answer, 100) }}</small></td>
                 <td data-label="Group">{{ \App\Models\Faq::GROUPS[$faq->group] ?? $faq->group }}</td>
                 <td data-label="Order">{{ $faq->sort_order }}</td>
@@ -23,9 +24,10 @@
                 </td>
             </tr>
         @empty
-            <tr><td colspan="5"><x-empty-state title="No FAQs yet" /></td></tr>
+            <tr><td colspan="6"><x-empty-state title="No FAQs yet" /></td></tr>
         @endforelse
         </tbody>
     </table>
+    <x-table-footer :items="$faqs" label="FAQs" />
 </div>
 @endsection

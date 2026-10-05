@@ -23,10 +23,11 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th>Invoice</th><th>Date</th><th>Billed to</th><th>Application</th><th>Taxable</th><th>GST</th><th>Total</th><th>Status</th><th></th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Invoice</th><th>Date</th><th>Billed to</th><th>Application</th><th>Taxable</th><th>GST</th><th>Total</th><th>Status</th><th></th></tr></thead>
                 <tbody>
                 @foreach ($invoices as $inv)
                     <tr>
+                        <td class="col-sl" data-label="#">{{ $invoices->firstItem() + $loop->index }}</td>
                         <td data-label="Invoice"><a href="{{ route('admin.invoices.show', $inv) }}" class="fw-semibold">{{ $inv->invoice_no }}</a></td>
                         <td data-label="Date">{{ $inv->invoice_date->format('d M Y') }}</td>
                         <td data-label="Billed to">{{ $inv->billing_name }}@if ($inv->billing_gstin)<br><small class="text-muted">{{ $inv->billing_gstin }}</small>@endif</td>
@@ -41,7 +42,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="table-footer"><span>{{ $invoices->total() }} invoices</span>{{ $invoices->links() }}</div>
+        <x-table-footer :items="$invoices" label="invoices" />
     @endif
 </div>
 @endsection

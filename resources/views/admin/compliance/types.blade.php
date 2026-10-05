@@ -7,10 +7,11 @@
 <div class="table-card mb-4">
     <div class="table-responsive">
         <table class="table align-middle">
-            <thead><tr><th>Name</th><th>Frequency</th><th>Due day</th><th>Month offset</th><th>Remind (days)</th><th>Active</th><th>Records</th><th></th></tr></thead>
+            <thead><tr><th class="col-sl">#</th><th>Name</th><th>Frequency</th><th>Due day</th><th>Month offset</th><th>Remind (days)</th><th>Active</th><th>Records</th><th></th></tr></thead>
             <tbody>
             @foreach ($types as $t)
                 <tr>
+                    <td class="col-sl" data-label="#">{{ $types->firstItem() + $loop->index }}</td>
                     <form method="POST" action="{{ route('admin.compliance-types.update', $t) }}">
                         @csrf @method('PUT')
                         <td><input type="text" name="name" value="{{ $t->name }}" class="form-control form-control-sm" required><input type="hidden" name="description" value="{{ $t->description }}"></td>
@@ -27,6 +28,7 @@
             </tbody>
         </table>
     </div>
+    <x-table-footer :items="$types" label="types" />
 </div>
 
 <form method="POST" action="{{ route('admin.compliance-types.store') }}" class="card" style="max-width: 900px">

@@ -39,10 +39,11 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th>Application</th><th>Customer</th><th>Service</th><th>Assigned</th><th>Total</th><th>Payment</th><th>Status</th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Application</th><th>Customer</th><th>Service</th><th>Assigned</th><th>Total</th><th>Payment</th><th>Status</th></tr></thead>
                 <tbody>
                 @foreach ($applications as $app)
                     <tr>
+                        <td class="col-sl" data-label="#">{{ $applications->firstItem() + $loop->index }}</td>
                         <td data-label="Application"><a href="{{ route('admin.applications.show', $app) }}" class="fw-semibold">{{ $app->application_no }}</a><br><small class="text-muted">{{ $app->created_at->format('d M Y') }}</small></td>
                         <td data-label="Customer">{{ $app->customer->user->name }}<br><small class="text-muted">{{ $app->customer->user->mobile }}</small></td>
                         <td data-label="Service">{{ $app->service->name }}</td>
@@ -55,7 +56,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="table-footer"><span>Showing {{ $applications->firstItem() }}–{{ $applications->lastItem() }} of {{ $applications->total() }}</span>{{ $applications->links() }}</div>
+        <x-table-footer :items="$applications" label="applications" />
     @endif
 </div>
 @endsection

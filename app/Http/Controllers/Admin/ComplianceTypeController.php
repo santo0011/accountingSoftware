@@ -21,7 +21,7 @@ class ComplianceTypeController extends Controller implements HasMiddleware
 
     public function index(): View
     {
-        $types = ComplianceType::withCount('records')->orderBy('name')->get();
+        $types = ComplianceType::withCount('records')->orderBy('name')->paginate(per_page(20))->withQueryString();
 
         return view('admin.compliance.types', compact('types'));
     }

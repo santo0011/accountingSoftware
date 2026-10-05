@@ -14,10 +14,11 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th>Ticket</th><th>Subject</th><th>Category</th><th>Priority</th><th>Last update</th><th>Status</th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Ticket</th><th>Subject</th><th>Category</th><th>Priority</th><th>Last update</th><th>Status</th></tr></thead>
                 <tbody>
                 @foreach ($tickets as $ticket)
                     <tr>
+                        <td class="col-sl" data-label="#">{{ $tickets->firstItem() + $loop->index }}</td>
                         <td data-label="Ticket"><a href="{{ route('portal.support.show', $ticket) }}" class="fw-semibold">{{ $ticket->ticket_no }}</a></td>
                         <td data-label="Subject">{{ $ticket->subject }} <small class="text-muted">({{ $ticket->messages_count }})</small></td>
                         <td data-label="Category">{{ $ticket->categoryLabel() }}</td>
@@ -29,7 +30,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="table-footer"><span>{{ $tickets->total() }} tickets</span>{{ $tickets->links() }}</div>
+        <x-table-footer :items="$tickets" label="tickets" />
     @endif
 </div>
 @endsection

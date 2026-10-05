@@ -10,10 +10,11 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th>Invoice</th><th>Date</th><th>Service</th><th>Billed to</th><th>Tax</th><th>Total</th><th>Status</th><th></th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Invoice</th><th>Date</th><th>Service</th><th>Billed to</th><th>Tax</th><th>Total</th><th>Status</th><th></th></tr></thead>
                 <tbody>
                 @foreach ($invoices as $invoice)
                     <tr>
+                        <td class="col-sl" data-label="#">{{ $invoices->firstItem() + $loop->index }}</td>
                         <td data-label="Invoice" class="fw-semibold">{{ $invoice->invoice_no }}</td>
                         <td data-label="Date">{{ $invoice->invoice_date->format('d M Y') }}</td>
                         <td data-label="Service">{{ $invoice->application?->service?->name ?? '—' }}</td>
@@ -32,7 +33,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="table-footer"><span>{{ $invoices->total() }} invoices</span>{{ $invoices->links() }}</div>
+        <x-table-footer :items="$invoices" label="invoices" />
     @endif
 </div>
 @endsection

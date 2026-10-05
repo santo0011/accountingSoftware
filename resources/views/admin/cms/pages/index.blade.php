@@ -9,10 +9,11 @@
 
 <div class="table-card">
     <table class="table table-hover table-stack">
-        <thead><tr><th>Title</th><th>URL</th><th>Updated</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th class="col-sl">#</th><th>Title</th><th>URL</th><th>Updated</th><th>Status</th><th></th></tr></thead>
         <tbody>
         @foreach ($pages as $page)
             <tr>
+                <td class="col-sl" data-label="#">{{ $pages->firstItem() + $loop->index }}</td>
                 <td data-label="Title" class="fw-semibold text-navy">{{ $page->title }} @if (in_array($page->slug, $system, true))<span class="badge badge-soft-secondary">System</span>@endif</td>
                 <td data-label="URL"><code>/{{ $page->slug }}</code></td>
                 <td data-label="Updated">{{ $page->updated_at->format('d M Y') }}</td>
@@ -27,5 +28,6 @@
         @endforeach
         </tbody>
     </table>
+    <x-table-footer :items="$pages" label="pages" />
 </div>
 @endsection

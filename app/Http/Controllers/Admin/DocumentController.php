@@ -34,7 +34,7 @@ class DocumentController extends Controller implements HasMiddleware
             ->when($status === 'pending', fn ($q) => $q->whereIn('status', [DocumentStatus::Pending, DocumentStatus::UnderReview]))
             ->when($status !== 'pending' && $status !== 'all', fn ($q) => $q->where('status', $status))
             ->when($request->filled('q'), fn ($q) => $q->whereHas('application', fn ($a) => $a->where('application_no', 'like', '%'.$request->q.'%')))
-            ->latest()->paginate(25)->withQueryString();
+            ->latest()->paginate(per_page(25))->withQueryString();
 
         return view('admin.documents.index', compact('documents', 'status'));
     }

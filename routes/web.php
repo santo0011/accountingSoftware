@@ -163,6 +163,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'user.type:backoffic
 
     Route::get('/settings', [Admin\SettingController::class, 'edit'])->name('settings.edit');
     Route::put('/settings', [Admin\SettingController::class, 'update'])->name('settings.update');
+    Route::post('/settings/test-mail', [Admin\SettingController::class, 'testMail'])->name('settings.test-mail')->middleware('throttle:6,1');
     Route::get('/audit-log', [Admin\AuditLogController::class, 'index'])->name('audit.index');
 
     Route::get('/profile', [Admin\ProfileController::class, 'edit'])->name('profile.edit');

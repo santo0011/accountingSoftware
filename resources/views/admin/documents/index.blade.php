@@ -22,10 +22,11 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th>Document</th><th>Application</th><th>Customer</th><th>Uploaded</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Document</th><th>Application</th><th>Customer</th><th>Uploaded</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
                 <tbody>
                 @foreach ($documents as $doc)
                     <tr>
+                        <td class="col-sl" data-label="#">{{ $documents->firstItem() + $loop->index }}</td>
                         <td data-label="Document"><span class="d-inline-flex gap-2 align-items-center"><i class="bi {{ $doc->icon() }} fs-5"></i><span><span class="fw-semibold text-navy d-block">{{ $doc->name }}</span><small class="text-muted">{{ \Illuminate\Support\Str::limit($doc->original_name, 35) }} · {{ $doc->humanSize() }}</small></span></span></td>
                         <td data-label="Application"><a href="{{ route('admin.applications.show', $doc->application) }}#tab-documents">{{ $doc->application->application_no }}</a><br><small class="text-muted">{{ $doc->application->service->name }}</small></td>
                         <td data-label="Customer">{{ $doc->application->customer->user->name }}</td>
@@ -45,7 +46,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="table-footer"><span>{{ $documents->total() }} documents</span>{{ $documents->links() }}</div>
+        <x-table-footer :items="$documents" label="documents" />
     @endif
 </div>
 @endsection

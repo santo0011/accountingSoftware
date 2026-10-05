@@ -22,10 +22,11 @@
 <div class="table-card">
     <div class="table-responsive">
         <table class="table table-hover table-stack">
-            <thead><tr><th>Ticket</th><th>Customer</th><th>Category</th><th>Priority</th><th>Assigned</th><th>Last activity</th><th>Status</th></tr></thead>
+            <thead><tr><th class="col-sl">#</th><th>Ticket</th><th>Customer</th><th>Category</th><th>Priority</th><th>Assigned</th><th>Last activity</th><th>Status</th></tr></thead>
             <tbody>
             @forelse ($tickets as $t)
                 <tr>
+                    <td class="col-sl" data-label="#">{{ $tickets->firstItem() + $loop->index }}</td>
                     <td data-label="Ticket"><a href="{{ route('admin.support.show', $t) }}" class="fw-semibold">{{ $t->subject }}</a><br><small class="text-muted">{{ $t->ticket_no }} · {{ $t->messages_count }} messages</small></td>
                     <td data-label="Customer">{{ $t->customer->user->name }}</td>
                     <td data-label="Category">{{ $t->categoryLabel() }}</td>
@@ -35,11 +36,11 @@
                     <td data-label="Status"><x-status-badge :status="$t->status" /></td>
                 </tr>
             @empty
-                <tr><td colspan="7"><x-empty-state icon="bi-headset" title="No tickets" /></td></tr>
+                <tr><td colspan="8"><x-empty-state icon="bi-headset" title="No tickets" /></td></tr>
             @endforelse
             </tbody>
         </table>
     </div>
-    <div class="table-footer"><span>{{ $tickets->total() }} tickets</span>{{ $tickets->links() }}</div>
+    <x-table-footer :items="$tickets" label="tickets" />
 </div>
 @endsection

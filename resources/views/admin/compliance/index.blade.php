@@ -27,10 +27,11 @@
 <div class="table-card">
     <div class="table-responsive">
         <table class="table table-hover table-stack">
-            <thead><tr><th>Due date</th><th>Compliance</th><th>Customer</th><th>Assigned</th><th>Reminder</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+            <thead><tr><th class="col-sl">#</th><th>Due date</th><th>Compliance</th><th>Customer</th><th>Assigned</th><th>Reminder</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
             <tbody>
             @forelse ($records as $r)
                 <tr>
+                    <td class="col-sl" data-label="#">{{ $records->firstItem() + $loop->index }}</td>
                     <td data-label="Due date" class="fw-semibold {{ $r->status === \App\Enums\ComplianceStatus::Overdue ? 'text-danger' : 'text-navy' }}">{{ $r->due_date->format('d M Y') }}<br><small class="text-muted fw-normal">@php($d = $r->daysLeft()){{ $r->completed_at ? 'Done '.$r->completed_at->format('d M') : ($d < 0 ? abs($d).'d overdue' : 'in '.$d.'d') }}</small></td>
                     <td data-label="Compliance">{{ $r->title }}<br><small class="text-muted">{{ $r->period_label }} · {{ \App\Models\ComplianceType::FREQUENCIES[$r->frequency] ?? $r->frequency }}</small></td>
                     <td data-label="Customer"><a href="{{ route('admin.customers.show', $r->customer_id) }}">{{ $r->customer->user->name }}</a>@if ($r->business)<br><small class="text-muted">{{ $r->business->name }}</small>@endif</td>
@@ -48,11 +49,11 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="7"><x-empty-state icon="bi-calendar-check" title="No compliance records" text="Records are created automatically when a recurring service is completed, or add one manually." /></td></tr>
+                <tr><td colspan="8"><x-empty-state icon="bi-calendar-check" title="No compliance records" text="Records are created automatically when a recurring service is completed, or add one manually." /></td></tr>
             @endforelse
             </tbody>
         </table>
     </div>
-    <div class="table-footer"><span>{{ $records->total() }} records</span>{{ $records->links() }}</div>
+    <x-table-footer :items="$records" label="records" />
 </div>
 @endsection

@@ -35,3 +35,13 @@ if (! function_exists('storage_asset')) {
         return $path ? asset('storage/'.$path) : $fallback;
     }
 }
+
+if (! function_exists('per_page')) {
+    /** Rows per page for admin / portal tables: ?per_page= from a fixed list, otherwise the page's default. */
+    function per_page(int $default = 20): int
+    {
+        $requested = (int) request()->query('per_page');
+
+        return in_array($requested, [10, 20, 50, 100], true) ? $requested : $default;
+    }
+}

@@ -34,7 +34,7 @@ class ServiceController extends Controller implements HasMiddleware
             ->when($request->filled('category'), fn ($q) => $q->where('service_category_id', $request->category))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status === 'active'))
             ->when($request->filled('billing'), fn ($q) => $q->where('billing_type', $request->billing))
-            ->orderBy('service_category_id')->orderBy('sort_order')->paginate(25)->withQueryString();
+            ->orderBy('service_category_id')->orderBy('sort_order')->paginate(per_page(25))->withQueryString();
 
         $categories = ServiceCategory::orderBy('sort_order')->pluck('name', 'id');
 

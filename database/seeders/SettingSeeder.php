@@ -55,6 +55,7 @@ class SettingSeeder extends Seeder
             'mail_password' => null,
             'mail_encryption' => null,
             'mail_from_address' => null,
+            'mail_from_name' => null,
         ],
         'seo' => [
             'seo_title' => 'BizSetu – Company Registration, GST, Trademark & Compliance Services',

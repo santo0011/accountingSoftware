@@ -60,7 +60,7 @@
             const ease = (t) => 1 - Math.pow(1 - t, 4); // fast start, soft finish
 
             const frame = (now) => {
-                const t = Math.min((now - start) / duration, 1);
+                const t = Math.min(Math.max((now - start) / duration, 0), 1); // first frame can be timestamped before `start`
                 const value = target * ease(t);
                 const text = grouped
                     ? Math.round(value).toLocaleString('en-IN')
@@ -226,6 +226,65 @@
         });
     }
 
+    // Services page: category pills filter the list in place (they are plain anchors without JS).
+    const svcFilter = document.querySelector('[data-svc-filter]');
+    if (svcFilter) {
+        const pills = svcFilter.querySelectorAll('[data-filter]');
+        const sections = document.querySelectorAll('[data-svc-section]');
+        const list = document.getElementById('services-list');
+        const apply = (slug, scroll) => {
+            pills.forEach((p) => p.classList.toggle('active', p.dataset.filter === slug));
+            sections.forEach((s) => { s.hidden = slug !== 'all' && s.dataset.svcSection !== slug; });
+            const pill = svcFilter.querySelector('[data-filter="' + slug + '"]');
+            // Phones: keep the chosen item visible in the swipeable bar (desktop sidebar needs no scrolling).
+            if (pill && window.innerWidth < 992) pill.parentElement.scrollTo({ left: pill.offsetLeft - 16, behavior: reduceMotion ? 'auto' : 'smooth' });
+            if (scroll && list && list.getBoundingClientRect().top < 0) {
+                window.scrollTo({ top: window.scrollY + list.getBoundingClientRect().top - 130, behavior: reduceMotion ? 'auto' : 'smooth' });
+            }
+        };
+        pills.forEach((p) => p.addEventListener('click', (e) => {
+            e.preventDefault();
+            apply(p.dataset.filter, true);
+            history.replaceState(null, '', p.dataset.filter === 'all' ? location.pathname + location.search : '#cat-' + p.dataset.filter);
+        }));
+        const fromHash = location.hash.startsWith('#cat-') ? location.hash.slice(5) : null;
+        if (fromHash && svcFilter.querySelector('[data-filter="' + fromHash + '"]')) {
+            apply(fromHash, false);
+            // The browser jumped to the anchor before the other sections were hidden; land on it again.
+            requestAnimationFrame(() => document.getElementById('cat-' + fromHash)?.scrollIntoView({ block: 'start' }));
+        }
+    }
+
+    // Hero headline: cycle through the phrases every few seconds.
+    document.querySelectorAll('[data-rotate]').forEach((wrap) => {
+        const items = [...wrap.children];
+        if (items.length < 2 || reduceMotion) return;
+        let i = 0;
+        setInterval(() => {
+            if (document.hidden) return;
+            const current = items[i];
+            i = (i + 1) % items.length;
+            current.classList.remove('is-active');
+            current.classList.add('is-leaving');
+            items[i].classList.add('is-active');
+            setTimeout(() => current.classList.remove('is-leaving'), 700);
+        }, 2800);
+    });
+
+    // Fade sections up as they scroll into view. Content stays visible if this never runs.
+    const reveals = document.querySelectorAll('[data-reveal]');
+    if (reveals.length && 'IntersectionObserver' in window && !reduceMotion) {
+        document.documentElement.classList.add('reveal-ready');
+        const revealObs = new IntersectionObserver((entries, obs) => {
+            entries.forEach((en) => {
+                if (!en.isIntersecting) return;
+                en.target.classList.add('is-visible');
+                obs.unobserve(en.target);
+            });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+        reveals.forEach((el) => revealObs.observe(el));
+    }
+
     // Service search (AJAX autocomplete).
     document.querySelectorAll('[data-service-search]').forEach((wrap) => {
         const input = wrap.querySelector('input');
@@ -280,8 +339,18 @@
         document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) box.classList.remove('show'); });
     });
 
+    // Back buttons: return to the previous page when it was on this site, otherwise follow the link.
+    document.querySelectorAll('[data-back]').forEach((btn) => btn.addEventListener('click', (e) => {
+        let sameSite = false;
+        try { sameSite = document.referrer && new URL(document.referrer).origin === location.origin; } catch (err) { /* ignore */ }
+        if (sameSite && history.length > 1) {
+            e.preventDefault();
+            history.back();
+        }
+    }));
+
     // Highlight the in-page section nav on service pages.
-    const navLinks = document.querySelectorAll('.service-nav .nav-link');
+    const navLinks = document.querySelectorAll('.service-nav .nav-link, .sd-toc a');
     if (navLinks.length && 'IntersectionObserver' in window) {
         const map = new Map();
         navLinks.forEach((l) => { const t = document.querySelector(l.getAttribute('href')); if (t) map.set(t, l); });

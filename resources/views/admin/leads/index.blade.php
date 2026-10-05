@@ -28,10 +28,11 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th>Lead</th><th>Contact</th><th>Interested in</th><th>Source</th><th>Assigned</th><th>Next follow-up</th><th>Status</th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Lead</th><th>Contact</th><th>Interested in</th><th>Source</th><th>Assigned</th><th>Next follow-up</th><th>Status</th></tr></thead>
                 <tbody>
                 @foreach ($leads as $lead)
                     <tr>
+                        <td class="col-sl" data-label="#">{{ $leads->firstItem() + $loop->index }}</td>
                         <td data-label="Lead"><a href="{{ route('admin.leads.show', $lead) }}" class="fw-semibold">{{ $lead->name }}</a>@if ($lead->company)<br><small class="text-muted">{{ $lead->company }}</small>@endif</td>
                         <td data-label="Contact">{{ $lead->phone }}<br><small class="text-muted">{{ $lead->email }}</small></td>
                         <td data-label="Interested in">{{ $lead->service?->name ?? '—' }}</td>
@@ -44,7 +45,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="table-footer"><span>{{ $leads->total() }} leads</span>{{ $leads->links() }}</div>
+        <x-table-footer :items="$leads" label="leads" />
     @endif
 </div>
 @endsection

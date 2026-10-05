@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Faq;
 use App\Models\Service;
 use App\Models\ServiceCategory;
+use App\Models\Testimonial;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
@@ -47,6 +48,7 @@ class HomeController extends Controller
                     ->filter()->values(),
                 'technology' => $this->servicesBySlug(self::TECHNOLOGY),
                 'faqs' => Faq::active()->limit(5)->get(),
+                'testimonials' => Testimonial::active()->limit(6)->get(),
             ];
         });
 

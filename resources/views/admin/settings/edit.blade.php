@@ -10,7 +10,7 @@
     @csrf @method('PUT')
 
     <ul class="nav nav-tabs mb-3" role="tablist">
-        @foreach (['company' => 'Company', 'billing' => 'Billing & numbering', 'notifications' => 'Notifications & email', 'seo' => 'SEO & social', 'homepage' => 'Homepage'] as $id => $label)
+        @foreach (['company' => 'Company', 'billing' => 'Billing & numbering', 'notifications' => 'Notifications', 'email' => 'Email (SMTP)', 'seo' => 'SEO & social', 'homepage' => 'Homepage'] as $id => $label)
             <li class="nav-item"><button class="nav-link {{ $loop->first ? 'active' : '' }}" type="button" data-bs-toggle="tab" data-bs-target="#tab-{{ $id }}" data-tab-name="{{ $id }}">{{ $label }}</button></li>
         @endforeach
     </ul>
@@ -32,7 +32,7 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="logo">Logo</label>
                     <input type="file" name="logo" id="logo" class="form-control @error('logo') is-invalid @enderror" accept=".png,.jpg,.jpeg,.webp"
-                        data-image-preview="#logoPreview" data-max-kb="1024">
+                        data-image-preview="#logoPreview" data-max-kb="2048">
                     @error('logo')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     <div class="img-preview img-preview-sm mt-2" id="logoPreview">
                         <div class="img-preview-frame">
@@ -74,14 +74,75 @@
                 <x-form.input name="compliance_reminder_days" type="number" label="Compliance reminder (days before due date)" :value="$v('compliance_reminder_days', 7)" required col="col-md-6 mb-3" />
                 <x-form.input name="admin_notification_email" type="email" label="Operations email" :value="$v('admin_notification_email')" col="col-md-6 mb-3" />
             </div></div>
-            <div class="card"><div class="card-header">SMTP email server <span class="small text-muted fw-normal">— leave blank to use the .env mail settings</span></div><div class="card-body row">
-                <x-form.input name="mail_host" label="SMTP host" :value="$v('mail_host')" placeholder="smtp.gmail.com" col="col-md-6 mb-3" />
-                <x-form.input name="mail_port" type="number" label="Port" :value="$v('mail_port')" placeholder="587" col="col-md-3 mb-3" />
-                <x-form.select name="mail_encryption" label="Encryption" :options="['tls' => 'TLS', 'ssl' => 'SSL']" :value="$v('mail_encryption')" placeholder="None" col="col-md-3 mb-3" />
-                <x-form.input name="mail_username" label="Username" :value="$v('mail_username')" autocomplete="off" col="col-md-4 mb-3" />
-                <x-form.input name="mail_password" type="password" label="Password" autocomplete="new-password" :help="! empty($s['mail_password']) ? 'Saved — leave blank to keep it.' : null" col="col-md-4 mb-3" />
-                <x-form.input name="mail_from_address" type="email" label="From address" :value="$v('mail_from_address')" col="col-md-4 mb-3" />
-            </div></div>
+        </div>
+
+        {{-- ============ EMAIL (SMTP) ============ --}}
+        <div class="tab-pane fade" id="tab-email">
+            @php($mailer = config('mail.default'))
+            <div class="smtp-status {{ $mailer === 'smtp' ? 'on' : 'off' }}">
+                <span class="smtp-status-ico"><i class="bi {{ $mailer === 'smtp' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill' }}"></i></span>
+                <div>
+                    @if (! empty($s['mail_host']))
+                        <strong>SMTP is active</strong>
+                        <span>Emails are sent through <b>{{ $s['mail_host'] }}</b>{{ ! empty($s['mail_port']) ? ':'.$s['mail_port'] : '' }} from <b>{{ config('mail.from.address') }}</b>.</span>
+                    @elseif ($mailer === 'smtp')
+                        <strong>Using the server (.env) SMTP settings</strong>
+                        <span>Fill in the form below to use your own mail server instead.</span>
+                    @else
+                        <strong>Emails are not being delivered</strong>
+                        <span>The mailer is set to “{{ $mailer }}” (emails are only written to the log). Fill in your SMTP details below to send real emails.</span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header d-flex flex-wrap align-items-center gap-2">
+                    <span><i class="bi bi-envelope-at me-2 text-muted"></i>SMTP server</span>
+                    <span class="ms-auto small text-muted">Quick fill:</span>
+                    @foreach ([
+                        'gmail' => ['Gmail', 'smtp.gmail.com', 587, 'tls'],
+                        'outlook' => ['Outlook / 365', 'smtp.office365.com', 587, 'tls'],
+                        'zoho' => ['Zoho', 'smtp.zoho.in', 465, 'ssl'],
+                        'hostinger' => ['Hostinger', 'smtp.hostinger.com', 465, 'ssl'],
+                        'godaddy' => ['GoDaddy', 'smtpout.secureserver.net', 465, 'ssl'],
+                    ] as $key => [$name, $host, $port, $enc])
+                        <button type="button" class="btn btn-sm smtp-preset" data-smtp-preset data-host="{{ $host }}" data-port="{{ $port }}" data-enc="{{ $enc }}">{{ $name }}</button>
+                    @endforeach
+                </div>
+                <div class="card-body row">
+                    <x-form.input name="mail_host" label="SMTP host" :value="$v('mail_host')" placeholder="smtp.gmail.com" col="col-md-6 mb-3" />
+                    <x-form.input name="mail_port" type="number" label="Port" :value="$v('mail_port')" placeholder="587" col="col-md-3 mb-3" />
+                    <x-form.select name="mail_encryption" label="Encryption" :options="['tls' => 'TLS (port 587)', 'ssl' => 'SSL (port 465)']" :value="$v('mail_encryption')" placeholder="None" col="col-md-3 mb-3" />
+                    <x-form.input name="mail_username" label="Username" :value="$v('mail_username')" placeholder="you@yourdomain.com" autocomplete="off" col="col-md-6 mb-3" />
+                    <div class="col-md-6 mb-3">
+                        <label for="f_mail_password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" name="mail_password" id="f_mail_password" class="form-control @error('mail_password') is-invalid @enderror" autocomplete="new-password" placeholder="{{ ! empty($s['mail_password']) ? '•••••••• (saved)' : 'SMTP / app password' }}">
+                            <button type="button" class="btn btn-light border" data-toggle-pass="f_mail_password" aria-label="Show password"><i class="bi bi-eye"></i></button>
+                        </div>
+                        <div class="form-text">{{ ! empty($s['mail_password']) ? 'Saved securely (encrypted). Leave blank to keep it.' : 'For Gmail, use an App Password, not your normal password.' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-person-badge me-2 text-muted"></i>Sender</div>
+                <div class="card-body row">
+                    <x-form.input name="mail_from_address" type="email" label="From email" :value="$v('mail_from_address')" placeholder="noreply@yourdomain.com" help="Usually the same as the SMTP username." col="col-md-6 mb-3" />
+                    <x-form.input name="mail_from_name" label="From name" :value="$v('mail_from_name')" :placeholder="$v('company_name')" help="Shown as the sender name. Leave blank to use the company name." col="col-md-6 mb-3" />
+                </div>
+            </div>
+
+            <div class="card smtp-test">
+                <div class="card-body d-flex flex-wrap align-items-end gap-3">
+                    <div class="flex-grow-1" style="min-width: 240px">
+                        <label for="test_email" class="form-label"><i class="bi bi-send me-1"></i>Send a test email</label>
+                        <input type="email" name="test_email" id="test_email" form="smtp-test-form" class="form-control" value="{{ old('test_email', auth()->user()->email) }}" placeholder="you@example.com">
+                        <div class="form-text">Save your SMTP settings first, then send a test to check they work.</div>
+                    </div>
+                    <button type="submit" form="smtp-test-form" class="btn btn-outline-primary mb-4"><i class="bi bi-send me-1"></i>Send test email</button>
+                </div>
+            </div>
         </div>
 
         <div class="tab-pane fade" id="tab-seo">
@@ -136,6 +197,9 @@
 
     <div class="text-end mt-3"><button class="btn btn-primary btn-lg">Save Settings</button></div>
 </form>
+
+{{-- Separate form for the test email (forms can't be nested); its fields use form="smtp-test-form" --}}
+<form method="POST" action="{{ route('admin.settings.test-mail') }}" id="smtp-test-form" data-no-lock>@csrf</form>
 @endsection
 
 @push('scripts')
@@ -157,6 +221,26 @@
             try { sessionStorage.setItem('settings-tab', name); } catch (e) { /* ignore */ }
         });
     });
+    // SMTP quick-fill buttons (Gmail, Outlook, …) fill host, port and encryption.
+    document.querySelectorAll('[data-smtp-preset]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.getElementById('f_mail_host').value = btn.dataset.host;
+            document.getElementById('f_mail_port').value = btn.dataset.port;
+            document.getElementById('f_mail_encryption').value = btn.dataset.enc;
+            document.querySelectorAll('[data-smtp-preset]').forEach(function (b) { b.classList.toggle('active', b === btn); });
+            document.getElementById('f_mail_username').focus();
+        });
+    });
+    // Show / hide the SMTP password.
+    document.querySelectorAll('[data-toggle-pass]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var input = document.getElementById(btn.dataset.togglePass);
+            var show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            btn.querySelector('i').className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+    });
+
     // A field with a validation error wins: show its tab.
     var invalid = document.querySelector('.tab-pane .is-invalid');
     if (invalid) bootstrap.Tab.getOrCreateInstance(document.querySelector('[data-bs-target="#' + invalid.closest('.tab-pane').id + '"]')).show();

@@ -3,8 +3,8 @@
 <head>
     @include('partials.head')
     <meta name="robots" content="noindex">
-    <link rel="stylesheet" href="{{ asset('assets/css/site.css') }}?v=1">
-    <link rel="stylesheet" href="{{ asset('assets/css/auth.css') }}?v=5">
+    <link rel="stylesheet" href="{{ asset('assets/css/site.css') }}?v=60">
+    <link rel="stylesheet" href="{{ asset('assets/css/auth.css') }}?v=28">
 </head>
 <body class="auth-body">
 @php($authImage = setting('hero_image') ? storage_asset(setting('hero_image')) : asset('images/site/hero.webp'))
@@ -13,30 +13,27 @@
         {{-- Left: business photo with brand + highlights (desktop only) --}}
         <aside class="auth-visual">
             <img src="{{ $authImage }}" alt="" class="auth-visual-img" fetchpriority="high">
+
             <div class="auth-visual-inner">
-                <a href="{{ route('site.home') }}" class="auth-brand">
-                    <span class="auth-brand-mark">
-                        @if (setting('logo'))<img src="{{ storage_asset(setting('logo')) }}" alt="">@else<i class="bi bi-bar-chart-steps"></i>@endif
-                    </span>
-                    <span><strong>{{ setting('company_name') }}</strong><small>{{ setting('tagline') ?: 'Business Services Platform' }}</small></span>
-                </a>
+                @if (setting('logo'))
+                    {{-- Uploaded logo is shown full width: it already carries the brand name --}}
+                    <a href="{{ route('site.home') }}" class="auth-brand-logo" aria-label="{{ setting('company_name') }} home">
+                        <img src="{{ storage_asset(setting('logo')) }}" alt="{{ setting('company_name') }}">
+                    </a>
+                @else
+                    <a href="{{ route('site.home') }}" class="auth-brand">
+                        <span class="auth-brand-mark"><i class="bi bi-bar-chart-steps"></i></span>
+                        <span><strong>{{ setting('company_name') }}</strong><small>{{ setting('tagline') ?: 'Business Services Platform' }}</small></span>
+                    </a>
+                @endif
 
-                <div class="auth-visual-copy">
-                    <span class="auth-chip"><i class="bi bi-shield-check"></i> Trusted by {{ setting('stat_customers', '25,000+') }} businesses</span>
-                    <h2>Your business compliance, simplified.</h2>
-                    <p>Registration, tax, compliance and legal services — handled by experts and tracked in one secure place.</p>
-                </div>
-
-                <ul class="auth-features">
-                    <li><span class="auth-feature-icon"><i class="bi bi-lightning-charge"></i></span><span><strong>Real-time tracking</strong><small>Follow every step of every application</small></span></li>
-                    <li><span class="auth-feature-icon"><i class="bi bi-lock"></i></span><span><strong>Secure document vault</strong><small>Private, encrypted storage for your files</small></span></li>
-                    <li><span class="auth-feature-icon"><i class="bi bi-bell"></i></span><span><strong>Due-date reminders</strong><small>Never miss a filing or renewal again</small></span></li>
-                </ul>
-
-                <div class="auth-stats">
-                    <div><strong>{{ setting('stat_customers', '25,000+') }}</strong><span>Customers</span></div>
-                    <div><strong>{{ setting('stat_experts', '150+') }}</strong><span>Experts</span></div>
-                    <div><strong>{{ setting('stat_rating', '4.8/5') }}</strong><span>Rating</span></div>
+                <div class="auth-visual-bottom">
+                    <h2>Your business compliance, <span>simplified.</span></h2>
+                    <ul class="auth-points">
+                        <li><i class="bi bi-check-circle-fill"></i> Track every application in real time</li>
+                        <li><i class="bi bi-check-circle-fill"></i> All your documents in one secure place</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Reminders before every due date</li>
+                    </ul>
                 </div>
             </div>
         </aside>

@@ -49,7 +49,7 @@ class PaymentController extends Controller implements HasMiddleware
         ];
 
         return view('admin.payments.index', [
-            'payments' => $query->latest()->paginate(25)->withQueryString(),
+            'payments' => $query->latest()->paginate(per_page(25))->withQueryString(),
             'totals' => $totals,
         ]);
     }

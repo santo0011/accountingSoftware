@@ -1,4 +1,4 @@
-@props(['name', 'label' => null, 'type' => 'text', 'value' => null, 'required' => false, 'help' => null, 'prepend' => null, 'col' => null])
+@props(['name', 'label' => null, 'type' => 'text', 'value' => null, 'required' => false, 'help' => null, 'helpOnError' => false, 'prepend' => null, 'col' => null])
 @php
     $key = str_replace(['[', ']'], ['.', ''], $name);
     $current = $type === 'password' || $type === 'file' ? null : old($key, $value);
@@ -11,5 +11,6 @@
         {{ $attributes->except('id')->merge(['class' => 'form-control'.($errors->has($key) ? ' is-invalid' : '')]) }}>
     @error($key)<div class="invalid-feedback">{{ $message }}</div>@enderror
     @if ($prepend)</div>@endif
-    @if ($help)<div class="form-text">{{ $help }}</div>@endif
+    {{-- helpOnError: the hint only appears once this field has a validation error --}}
+    @if ($help && (! $helpOnError || $errors->has($key)))<div class="form-text">{{ $help }}</div>@endif
 </div>

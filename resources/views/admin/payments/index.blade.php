@@ -25,10 +25,11 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th>Payment</th><th>Customer</th><th>Application</th><th>Method</th><th>Reference</th><th>Amount</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Payment</th><th>Customer</th><th>Application</th><th>Method</th><th>Reference</th><th>Amount</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
                 <tbody>
                 @foreach ($payments as $p)
                     <tr>
+                        <td class="col-sl" data-label="#">{{ $payments->firstItem() + $loop->index }}</td>
                         <td data-label="Payment" class="fw-semibold">{{ $p->payment_no }}<br><small class="text-muted fw-normal">{{ ($p->paid_at ?? $p->created_at)->format('d M Y') }}</small></td>
                         <td data-label="Customer">{{ $p->customer->user->name }}</td>
                         <td data-label="Application">@if ($p->application)<a href="{{ route('admin.applications.show', $p->application) }}">{{ $p->application->application_no }}</a>@else — @endif</td>
@@ -54,7 +55,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="table-footer"><span>{{ $payments->total() }} payments</span>{{ $payments->links() }}</div>
+        <x-table-footer :items="$payments" label="payments" />
     @endif
 </div>
 
