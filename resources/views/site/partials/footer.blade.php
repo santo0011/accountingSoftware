@@ -45,7 +45,7 @@
                 <ul class="footer-contact">
                     <li><i class="bi bi-telephone"></i><a href="tel:{{ $tel }}">{{ setting('company_phone') }}</a></li>
                     <li><i class="bi bi-envelope"></i><a href="mailto:{{ setting('company_email') }}">{{ setting('company_email') }}</a></li>
-                    <li><i class="bi bi-geo-alt"></i><span>{{ \Illuminate\Support\Str::afterLast((string) setting('company_address'), ', ') ?: setting('company_state') }}</span></li>
+                    <li><i class="bi bi-geo-alt"></i><span>{{ setting('company_address') ?: setting('company_state') }}</span></li>
                 </ul>
             </div>
         </div>

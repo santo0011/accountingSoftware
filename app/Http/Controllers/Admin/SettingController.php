@@ -10,7 +10,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -68,6 +70,7 @@ class SettingController extends Controller implements HasMiddleware
             'mail_password' => ['nullable', 'string', 'max:255'],
             'mail_encryption' => ['nullable', Rule::in(['tls', 'ssl'])],
             'mail_from_address' => ['nullable', 'email'],
+            'mail_from_name' => ['nullable', 'string', 'max:100'],
             'seo_title' => ['nullable', 'string', 'max:255'],
             'seo_description' => ['nullable', 'string', 'max:500'],
             'seo_keywords' => ['nullable', 'string', 'max:500'],
@@ -117,6 +120,29 @@ class SettingController extends Controller implements HasMiddleware
     }
 
     /** Group submitted keys the same way as the seeder defaults. */
+    /** Send a test email using the SMTP settings currently saved (applied at boot by AppServiceProvider). */
+    public function testMail(Request $request): RedirectResponse
+    {
+        $data = $request->validate(['test_email' => ['required', 'email']]);
+
+        try {
+            Mail::raw(
+                "This is a test email from {$this->settings->get('company_name', config('app.name'))}.\n\n"
+                ."If you are reading this, your SMTP settings are working.\n\nSent: ".now()->format('d M Y, h:i A'),
+                fn ($m) => $m->to($data['test_email'])->subject('Test email — SMTP is working')
+            );
+        } catch (\Throwable $e) {
+            return redirect()->to(route('admin.settings.edit').'#email')
+                ->with('error', 'Test email failed: '.Str::limit($e->getMessage(), 220));
+        }
+
+        $mailer = config('mail.default');
+        $note = $mailer === 'smtp' ? '' : " (mailer is \"{$mailer}\", so it was not really delivered — fill in the SMTP host to send real emails)";
+
+        return redirect()->to(route('admin.settings.edit').'#email')
+            ->with('success', "Test email sent to {$data['test_email']}{$note}.");
+    }
+
     private function groupOf(array $data): array
     {
         $groups = [];

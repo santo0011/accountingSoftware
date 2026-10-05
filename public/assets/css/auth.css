@@ -337,3 +337,31 @@ body.auth-body {
 /* "Don't have an account? Create a free account" — larger, easier to read */
 .auth-alt { font-size: .95rem; }
 .auth-alt .auth-link { font-size: 1rem; }
+
+/* ==========================================================================
+   No inner scrolling on the auth card
+   ========================================================================== */
+/* Register (wide card): compact fields so the whole form fits on laptop screens */
+.auth-card.wide { padding: .25rem 0 .75rem; }
+.auth-card.wide h1 { margin-bottom: .9rem !important; font-size: 1.45rem; }
+.auth-card.wide .row > [class*="col-"] { margin-bottom: .7rem !important; }
+.auth-card.wide .form-label { font-size: .82rem; margin-bottom: .3rem; }
+.auth-card.wide .form-control, .auth-card.wide .form-select, .auth-card.wide .input-group-text { height: 42px; }
+.auth-card.wide .form-check { margin-bottom: .9rem !important; }
+.auth-card.wide .auth-submit { height: 46px; }
+.auth-card.wide .divider { margin: .8rem 0; }
+.auth-card.wide .auth-alt { margin-top: 0; }
+
+/* Phones & tablets: no scroll box inside the card — the page itself scrolls normally */
+@media (max-width: 991.98px) {
+    html:has(body.auth-body), body.auth-body { height: auto; overflow: auto; }
+    .auth-page { height: auto; min-height: 100dvh; justify-content: flex-start; padding-top: 1rem; padding-bottom: 1rem; }
+    .auth-frame { max-height: none; overflow: visible; }
+    .auth-content { overflow: visible; }
+}
+
+/* "Back to website" always on one line; logo gives way on small phones */
+.auth-back { white-space: nowrap; flex-shrink: 0; }
+.auth-main-top > .d-lg-none { min-width: 0; }
+@media (max-width: 991.98px) { .auth-main-top { gap: .6rem; padding-left: 1.1rem; padding-right: 1.1rem; } .auth-main-top .brand img { max-height: 34px; max-width: 140px; } }
+@media (max-width: 374.98px) { .auth-back { font-size: .74rem; padding: .25rem .6rem; } .auth-main-top .brand img { max-width: 118px; } }

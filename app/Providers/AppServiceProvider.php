@@ -71,7 +71,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         if ($from = $settings->get('mail_from_address')) {
-            config(['mail.from.address' => $from, 'mail.from.name' => $settings->get('company_name', config('app.name'))]);
+            config(['mail.from.address' => $from, 'mail.from.name' => $settings->get('mail_from_name') ?: $settings->get('company_name', config('app.name'))]);
         }
     }
 }

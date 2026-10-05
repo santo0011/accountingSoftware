@@ -3,7 +3,7 @@
 <head>
     @include('partials.head')
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="{{ asset('assets/css/panel.css') }}?v=20">
+    <link rel="stylesheet" href="{{ asset('assets/css/panel.css') }}?v=21">
     @stack('head')
 </head>
 <body class="panel panel-admin">

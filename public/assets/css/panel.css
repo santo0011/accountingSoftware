@@ -807,3 +807,13 @@ a.pg-btn:focus-visible { outline: 2px solid var(--pg-accent); outline-offset: 2p
     .cx-dl { grid-template-columns: 120px 1fr; }
 }
 #cx-services td[data-label="Amount"] small, #cx-services td[data-label="Application"] a { white-space: nowrap; }
+
+/* Settings › Email (SMTP) */
+.smtp-status { display: flex; align-items: flex-start; gap: .85rem; padding: 1rem 1.15rem; margin-bottom: 1rem; border-radius: 14px; border: 1px solid; font-size: .88rem; }
+.smtp-status strong { display: block; font-size: .95rem; margin-bottom: .1rem; }
+.smtp-status.on { background: #ecfdf3; border-color: #abefc6; color: #067647; }
+.smtp-status.off { background: #fffaeb; border-color: #fedf89; color: #93370d; }
+.smtp-status-ico { font-size: 1.35rem; line-height: 1; }
+.smtp-preset { border: 1px solid #e2e8f0; background: #fff; color: #334155; font-weight: 600; border-radius: 30px; padding: .2rem .7rem; font-size: .76rem; }
+.smtp-preset:hover, .smtp-preset.active { border-color: #4f46e5; color: #4f46e5; background: #eef0ff; }
+.smtp-test { border-style: dashed; background: #fbfcfe; }
