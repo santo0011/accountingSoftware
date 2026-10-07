@@ -33,19 +33,32 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th class="col-sl">#</th><th>Payment</th><th>Application</th><th>Method</th><th>Reference</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Payment</th><th>Application</th><th>Method &amp; reference</th><th class="text-end">Amount &amp; status</th><th class="text-end">Invoice</th></tr></thead>
                 <tbody>
                 @foreach ($payments as $payment)
                     <tr>
                         <td class="col-sl" data-label="#">{{ $payments->firstItem() + $loop->index }}</td>
-                        <td data-label="Payment" class="fw-semibold">{{ $payment->payment_no }}</td>
-                        <td data-label="Application">@if ($payment->application)<a href="{{ route('portal.applications.show', $payment->application) }}">{{ $payment->application->application_no }}</a><br><small class="text-muted">{{ $payment->application->service->name }}</small>@else — @endif</td>
-                        <td data-label="Method">{{ $payment->methodLabel() }}</td>
-                        <td data-label="Reference"><code>{{ $payment->transaction_id ?? '—' }}</code></td>
-                        <td data-label="Date">{{ ($payment->paid_at ?? $payment->created_at)->format('d M Y') }}</td>
-                        <td data-label="Amount" class="fw-semibold">{{ money($payment->amount) }}</td>
-                        <td data-label="Status"><x-status-badge :status="$payment->status" /></td>
-                        <td class="td-actions text-end">@if ($payment->invoice)<a href="{{ route('portal.invoices.pdf', $payment->invoice) }}" class="btn btn-sm btn-light"><i class="bi bi-file-earmark-pdf"></i> Invoice</a>@endif</td>
+                        <td data-label="Payment" class="text-nowrap stack-multi">
+                            <span class="fw-semibold d-block">{{ $payment->payment_no }}</span>
+                            <small class="text-muted d-block">{{ ($payment->paid_at ?? $payment->created_at)->format('d M Y') }}</small>
+                        </td>
+                        <td data-label="Application" class="stack-multi td-clip" title="{{ $payment->application?->service->name }}">
+                            @if ($payment->application)
+                                <a href="{{ route('portal.applications.show', $payment->application) }}" class="d-block">{{ $payment->application->application_no }}</a>
+                                <small class="text-muted d-block">{{ $payment->application->service->name }}</small>
+                            @else
+                                <span class="d-block">—</span>
+                            @endif
+                        </td>
+                        <td data-label="Method &amp; reference" class="text-nowrap stack-multi" title="{{ $payment->methodLabel() }}">
+                            <span class="d-block">{{ \Illuminate\Support\Str::before($payment->methodLabel(), ' (') }}</span>
+                            <code class="pay-ref d-block">{{ $payment->transaction_id ?? '—' }}</code>
+                        </td>
+                        <td data-label="Amount &amp; status" class="text-end text-nowrap stack-multi">
+                            <span class="fw-semibold d-block">{{ money($payment->amount) }}</span>
+                            <span class="d-block mt-1"><x-status-badge :status="$payment->status" /></span>
+                        </td>
+                        <td class="td-actions text-end text-nowrap">@if ($payment->invoice)<a href="{{ route('portal.invoices.pdf', $payment->invoice) }}" class="btn btn-sm btn-light"><i class="bi bi-file-earmark-pdf me-1"></i>Invoice</a>@endif</td>
                     </tr>
                 @endforeach
                 </tbody>

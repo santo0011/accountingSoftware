@@ -19,17 +19,20 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th class="col-sl">#</th><th>Customer</th><th>Contact</th><th>Business</th><th>Applications</th><th>Status</th><th class="text-end">Action</th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Customer</th><th>Contact</th><th>Business</th><th class="text-center">Apps</th><th>Status</th><th class="text-end">Action</th></tr></thead>
                 <tbody>
                 @foreach ($customers as $c)
                     <tr>
                         <td class="col-sl" data-label="#">{{ $customers->firstItem() + $loop->index }}</td>
-                        <td data-label="Customer"><a href="{{ route('admin.customers.show', $c) }}" class="d-flex align-items-center gap-2"><span class="avatar sm">{{ $c->user->initials() }}</span><span><span class="fw-semibold d-block">{{ $c->user->name }}</span><small class="text-muted">{{ $c->customer_code }}</small></span></a></td>
-                        <td data-label="Contact">{{ $c->user->email }}<br><small class="text-muted">{{ $c->user->mobile }}</small></td>
-                        <td data-label="Business">{{ $c->primaryBusiness?->name ?? '—' }}</td>
-                        <td data-label="Applications">{{ $c->applications_count }}</td>
-                        <td data-label="Status"><span class="badge badge-soft-{{ $c->user->status === 'active' ? 'success' : 'secondary' }}">{{ ucfirst($c->user->status) }}</span></td>
-                        <td class="text-end"><a href="{{ route('admin.customers.show', $c) }}" class="btn btn-sm btn-cx-view"><i class="bi bi-eye me-1"></i>View</a></td>
+                        <td data-label="Customer"><a href="{{ route('admin.customers.show', $c) }}" class="d-flex align-items-center gap-2 text-nowrap"><span class="avatar sm">{{ $c->user->initials() }}</span><span><span class="fw-semibold d-block">{{ $c->user->name }}</span><small class="text-muted">{{ $c->customer_code }}</small></span></a></td>
+                        <td data-label="Contact" class="stack-multi td-clip" title="{{ $c->user->email }}">
+                            <span class="d-block">{{ $c->user->email }}</span>
+                            <small class="text-muted d-block">{{ $c->user->mobile }}</small>
+                        </td>
+                        <td data-label="Business" class="td-clip narrow" title="{{ $c->primaryBusiness?->name }}"><span class="d-block">{{ $c->primaryBusiness?->name ?? '—' }}</span></td>
+                        <td data-label="Apps" class="text-center"><span class="count-pill {{ $c->applications_count ? 'has' : '' }}">{{ $c->applications_count }}</span></td>
+                        <td data-label="Status"><span class="status-dot {{ $c->user->status === 'active' ? 'on' : 'off' }}">{{ ucfirst($c->user->status) }}</span></td>
+                        <td class="td-actions text-end"><a href="{{ route('admin.customers.show', $c) }}" class="btn btn-sm btn-cx-view text-nowrap"><i class="bi bi-eye me-1"></i>View</a></td>
                     </tr>
                 @endforeach
                 </tbody>

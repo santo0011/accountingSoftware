@@ -14,17 +14,19 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th class="col-sl">#</th><th>Ticket</th><th>Subject</th><th>Category</th><th>Priority</th><th>Last update</th><th>Status</th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Ticket</th><th>Category</th><th>Priority</th><th>Last update</th><th>Status</th></tr></thead>
                 <tbody>
                 @foreach ($tickets as $ticket)
                     <tr>
                         <td class="col-sl" data-label="#">{{ $tickets->firstItem() + $loop->index }}</td>
-                        <td data-label="Ticket"><a href="{{ route('portal.support.show', $ticket) }}" class="fw-semibold">{{ $ticket->ticket_no }}</a></td>
-                        <td data-label="Subject">{{ $ticket->subject }} <small class="text-muted">({{ $ticket->messages_count }})</small></td>
-                        <td data-label="Category">{{ $ticket->categoryLabel() }}</td>
+                        <td data-label="Ticket" class="stack-multi td-clip wide" title="{{ $ticket->subject }}">
+                            <a href="{{ route('portal.support.show', $ticket) }}" class="fw-semibold d-block">{{ $ticket->subject }}</a>
+                            <small class="text-muted d-block">{{ $ticket->ticket_no }} · {{ $ticket->messages_count }} {{ \Illuminate\Support\Str::plural('message', $ticket->messages_count) }}</small>
+                        </td>
+                        <td data-label="Category" class="text-nowrap">{{ $ticket->categoryLabel() }}</td>
                         <td data-label="Priority"><span class="badge badge-soft-{{ $ticket->priorityColor() }}">{{ ucfirst($ticket->priority) }}</span></td>
-                        <td data-label="Last update">{{ $ticket->last_reply_at?->diffForHumans() }}</td>
-                        <td data-label="Status"><x-status-badge :status="$ticket->status" /></td>
+                        <td data-label="Last update" class="text-nowrap" title="{{ $ticket->last_reply_at?->format('d M Y, h:i A') }}">{{ $ticket->last_reply_at?->diffForHumans(short: true) ?? '—' }}</td>
+                        <td data-label="Status" class="text-nowrap"><x-status-badge :status="$ticket->status" /></td>
                     </tr>
                 @endforeach
                 </tbody>

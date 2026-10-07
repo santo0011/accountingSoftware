@@ -25,30 +25,47 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th class="col-sl">#</th><th>Payment</th><th>Customer</th><th>Application</th><th>Method</th><th>Reference</th><th>Amount</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Payment</th><th>Customer &amp; application</th><th>Method &amp; reference</th><th class="text-end">Amount &amp; status</th><th class="text-end">Actions</th></tr></thead>
                 <tbody>
                 @foreach ($payments as $p)
+                    @php($method = \Illuminate\Support\Str::before($p->methodLabel(), ' ('))
                     <tr>
                         <td class="col-sl" data-label="#">{{ $payments->firstItem() + $loop->index }}</td>
-                        <td data-label="Payment" class="fw-semibold">{{ $p->payment_no }}<br><small class="text-muted fw-normal">{{ ($p->paid_at ?? $p->created_at)->format('d M Y') }}</small></td>
-                        <td data-label="Customer">{{ $p->customer->user->name }}</td>
-                        <td data-label="Application">@if ($p->application)<a href="{{ route('admin.applications.show', $p->application) }}">{{ $p->application->application_no }}</a>@else — @endif</td>
-                        <td data-label="Method">{{ $p->methodLabel() }}<br><small class="text-muted">{{ ucfirst($p->gateway) }}</small></td>
-                        <td data-label="Reference"><code>{{ $p->transaction_id ?? '—' }}</code></td>
-                        <td data-label="Amount" class="fw-semibold">{{ money($p->amount) }}@if ((float) $p->refunded_amount > 0)<br><small class="text-danger">− {{ money($p->refunded_amount) }}</small>@endif</td>
-                        <td data-label="Status"><x-status-badge :status="$p->status" /></td>
+                        <td data-label="Payment" class="text-nowrap stack-multi">
+                            <span class="fw-semibold text-navy d-block">{{ $p->payment_no }}</span>
+                            <small class="text-muted d-block">{{ ($p->paid_at ?? $p->created_at)->format('d M Y') }}</small>
+                        </td>
+                        <td data-label="Customer &amp; application" class="stack-multi pay-cust">
+                            <span class="d-block text-truncate">{{ $p->customer->user->name }}</span>
+                            @if ($p->application)<a href="{{ route('admin.applications.show', $p->application) }}" class="small d-block text-nowrap">{{ $p->application->application_no }}</a>@else<small class="text-muted d-block">No application</small>@endif
+                        </td>
+                        <td data-label="Method &amp; reference" class="stack-multi" title="{{ $p->methodLabel() }} · {{ ucfirst($p->gateway) }}">
+                            <span class="d-block text-nowrap">{{ $method }}</span>
+                            <code class="pay-ref d-block text-nowrap">{{ $p->transaction_id ?? '—' }}</code>
+                        </td>
+                        <td data-label="Amount &amp; status" class="text-end text-nowrap stack-multi">
+                            <span class="fw-semibold d-block">{{ money($p->amount) }}</span>
+                            @if ((float) $p->refunded_amount > 0)<small class="text-danger d-block">− {{ money($p->refunded_amount) }} refunded</small>@endif
+                            <span class="d-block mt-1"><x-status-badge :status="$p->status" /></span>
+                        </td>
                         <td class="td-actions text-end text-nowrap">
-                            @if ($p->status === \App\Enums\PaymentStatus::Pending)
-                                @can('payments.manage')
-                                    <form method="POST" action="{{ route('admin.payments.confirm', $p) }}" class="d-inline" data-confirm="Confirm you received {{ money($p->amount) }} (ref {{ $p->transaction_id }})?">@csrf<button class="btn btn-sm btn-cta">Confirm</button></form>
-                                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#failModal" data-action="{{ route('admin.payments.fail', $p) }}">Reject</button>
-                                @endcan
-                            @elseif ($p->status === \App\Enums\PaymentStatus::Paid)
-                                @can('payments.refund')
-                                    <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#refundModal" data-action="{{ route('admin.payments.refund', $p) }}" data-amount="{{ $p->amount }}">Refund</button>
-                                @endcan
-                            @endif
-                            @if ($p->invoice)<a href="{{ route('admin.invoices.show', $p->invoice) }}" class="btn btn-sm btn-light" title="Invoice"><i class="bi bi-receipt"></i></a>@endif
+                            <span class="pay-actions">
+                                @if ($p->status === \App\Enums\PaymentStatus::Pending)
+                                    @can('payments.manage')
+                                        <form method="POST" action="{{ route('admin.payments.confirm', $p) }}" class="d-inline" data-confirm="Confirm you received {{ money($p->amount) }} (ref {{ $p->transaction_id }})?">@csrf<button class="btn btn-sm btn-cta" title="Confirm payment received"><i class="bi bi-check2 me-1"></i>Confirm</button></form>
+                                        <button class="btn btn-sm btn-light text-danger" data-bs-toggle="modal" data-bs-target="#failModal" data-action="{{ route('admin.payments.fail', $p) }}" title="Reject payment" aria-label="Reject payment {{ $p->payment_no }}"><i class="bi bi-x-lg"></i></button>
+                                    @endcan
+                                @elseif ($p->status === \App\Enums\PaymentStatus::Paid)
+                                    @can('payments.refund')
+                                        <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#refundModal" data-action="{{ route('admin.payments.refund', $p) }}" data-amount="{{ $p->amount }}" title="Record a refund"><i class="bi bi-arrow-counterclockwise me-1"></i>Refund</button>
+                                    @endcan
+                                @endif
+                                @if ($p->invoice)
+                                    <a href="{{ route('admin.invoices.show', $p->invoice) }}" class="btn btn-sm btn-light" title="View invoice" aria-label="Invoice for {{ $p->payment_no }}"><i class="bi bi-receipt"></i></a>
+                                @else
+                                    <span class="btn btn-sm btn-light invisible" aria-hidden="true"><i class="bi bi-receipt"></i></span>
+                                @endif
+                            </span>
                         </td>
                     </tr>
                 @endforeach

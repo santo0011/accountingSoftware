@@ -16,29 +16,38 @@
 <div class="table-card">
     <div class="table-responsive">
         <table class="table table-hover table-stack">
-            <thead><tr><th class="col-sl">#</th><th>Professional</th><th>Type</th><th>Registration no.</th><th>Specialization</th><th>Open apps</th><th>Login</th><th>Status</th><th></th></tr></thead>
+            <thead><tr><th class="col-sl">#</th><th>Professional</th><th>Type &amp; registration</th><th>Specialization</th><th class="text-center">Open apps</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
             <tbody>
             @forelse ($professionals as $p)
                 <tr>
                     <td class="col-sl" data-label="#">{{ $professionals->firstItem() + $loop->index }}</td>
-                    <td data-label="Professional"><span class="fw-semibold text-navy">{{ $p->name }}</span><br><small class="text-muted">{{ $p->email }} {{ $p->phone }}</small></td>
-                    <td data-label="Type">{{ $p->typeLabel() }}</td>
-                    <td data-label="Registration no.">{{ $p->registration_no ?? '—' }}</td>
-                    <td data-label="Specialization">{{ $p->specialization ?? '—' }}</td>
-                    <td data-label="Open apps">{{ $p->open_applications_count }}</td>
-                    <td data-label="Login">@if ($p->user)<i class="bi bi-check-circle-fill text-green" title="Has panel access"></i>@else<span class="text-muted">—</span>@endif</td>
-                    <td data-label="Status"><span class="badge badge-soft-{{ $p->status === 'active' ? 'success' : 'secondary' }}">{{ ucfirst($p->status) }}</span></td>
+                    <td data-label="Professional" class="stack-multi td-clip" title="{{ $p->name }} · {{ $p->email }}">
+                        <span class="fw-semibold text-navy d-block">{{ $p->name }}</span>
+                        <small class="text-muted d-block">{{ $p->email }}@if ($p->phone) · {{ $p->phone }}@endif</small>
+                    </td>
+                    <td data-label="Type &amp; registration" class="stack-multi td-clip narrow" title="{{ $p->typeLabel() }} · {{ $p->registration_no }}">
+                        <span class="d-block">{{ $p->typeLabel() }}</span>
+                        <small class="text-muted d-block">{{ $p->registration_no ?? 'No registration no.' }}</small>
+                    </td>
+                    <td data-label="Specialization" class="td-clip narrow" title="{{ $p->specialization }}"><span class="d-block">{{ $p->specialization ?? '—' }}</span></td>
+                    <td data-label="Open apps" class="text-center"><span class="count-pill {{ $p->open_applications_count ? 'has' : '' }}">{{ $p->open_applications_count }}</span></td>
+                    <td data-label="Status" class="text-nowrap stack-multi">
+                        <span class="status-dot {{ $p->status === 'active' ? 'on' : 'off' }} d-flex">{{ ucfirst($p->status) }}</span>
+                        <small class="text-muted d-block mt-1">@if ($p->user)<i class="bi bi-key me-1"></i>Has login@else No login @endif</small>
+                    </td>
                     <td class="td-actions text-end text-nowrap">
                         @can('professionals.manage')
-                            <a href="{{ route('admin.professionals.edit', $p) }}" class="btn btn-sm btn-light"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ route('admin.professionals.edit', $p) }}" class="btn btn-sm btn-light" title="Edit" aria-label="Edit {{ $p->name }}"><i class="bi bi-pencil"></i></a>
                             @if ($p->status === 'active')
-                                <form method="POST" action="{{ route('admin.professionals.destroy', $p) }}" class="d-inline" data-confirm="Deactivate {{ $p->name }}?">@csrf @method('DELETE')<button class="btn btn-sm btn-light text-danger"><i class="bi bi-person-x"></i></button></form>
+                                <form method="POST" action="{{ route('admin.professionals.destroy', $p) }}" class="d-inline" data-confirm="Deactivate {{ $p->name }}?">@csrf @method('DELETE')<button class="btn btn-sm btn-light text-danger" title="Deactivate" aria-label="Deactivate {{ $p->name }}"><i class="bi bi-person-x"></i></button></form>
+                            @else
+                                <span class="btn btn-sm btn-light invisible" aria-hidden="true"><i class="bi bi-person-x"></i></span>
                             @endif
                         @endcan
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="9"><x-empty-state icon="bi-mortarboard" title="No professionals found" /></td></tr>
+                <tr><td colspan="7"><x-empty-state icon="bi-mortarboard" title="No professionals found" /></td></tr>
             @endforelse
             </tbody>
         </table>

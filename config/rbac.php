@@ -36,8 +36,7 @@ return [
 
     // Default permissions per role. '*' = every permission.
     'roles' => [
-        'super-admin' => ['label' => 'Super Admin', 'permissions' => ['*']],
-        'admin' => ['label' => 'Admin', 'permissions' => ['*', '!roles.manage']],
+        'super-admin' => ['label' => 'Admin', 'permissions' => ['*']],
         'staff' => ['label' => 'Staff', 'permissions' => [
             'dashboard.view', 'customers.view', 'customers.create', 'customers.edit',
             'leads.view', 'leads.create', 'leads.edit', 'services.view',
@@ -50,11 +49,6 @@ return [
             'dashboard.view', 'customers.view', 'services.view', 'applications.view', 'applications.view_all',
             'payments.view', 'payments.manage', 'payments.refund', 'invoices.view', 'invoices.manage',
             'tasks.view', 'tasks.manage', 'reports.view', 'support.view', 'support.reply',
-        ]],
-        'hr' => ['label' => 'HR', 'permissions' => [
-            'dashboard.view', 'customers.view', 'services.view', 'applications.view',
-            'applications.update', 'documents.view', 'documents.verify', 'documents.upload_final',
-            'staff.view', 'tasks.view', 'tasks.manage', 'compliance.view', 'compliance.manage',
         ]],
         'legal-professional' => ['label' => 'Legal Professional', 'permissions' => [
             'dashboard.view', 'applications.view', 'applications.update', 'documents.view',

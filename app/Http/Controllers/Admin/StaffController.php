@@ -30,16 +30,16 @@ class StaffController extends Controller implements HasMiddleware
         $staff = User::where('user_type', User::TYPE_STAFF)->with('staffProfile', 'roles:id,name')
             ->withCount(['assignedApplications as open_applications_count' => fn ($q) => $q->active()])
             ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w->where('name', 'like', '%'.$request->q.'%')->orWhere('email', 'like', '%'.$request->q.'%')))
-            ->when($request->filled('role'), fn ($q) => $q->role($request->role))
+            ->when(in_array($request->role, self::STAFF_ROLES, true), fn ($q) => $q->role($request->role))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
             ->orderBy('name')->paginate(per_page(20))->withQueryString();
 
-        return view('admin.staff.index', ['staff' => $staff, 'roles' => $this->roles()]);
+        return view('admin.staff.index', ['staff' => $staff, 'roles' => $this->roles(), 'filterRoles' => $this->assignableRoles()]);
     }
 
     public function create(): View
     {
-        return view('admin.staff.form', ['user' => new User(['status' => 'active']), 'roles' => $this->roles()]);
+        return view('admin.staff.form', ['user' => new User(['status' => 'active']), 'roles' => $this->assignableRoles()]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -64,7 +64,7 @@ class StaffController extends Controller implements HasMiddleware
         $this->guardTarget($user);
         $user->load('staffProfile', 'roles');
 
-        return view('admin.staff.form', ['user' => $user, 'roles' => $this->roles()]);
+        return view('admin.staff.form', ['user' => $user, 'roles' => $this->assignableRoles($user)]);
     }
 
     public function update(Request $request, User $user): RedirectResponse
@@ -100,6 +100,17 @@ class StaffController extends Controller implements HasMiddleware
         return back()->with('success', 'Staff member deactivated.');
     }
 
+    /** Re-enable a deactivated staff account so they can sign in again. */
+    public function activate(Request $request, User $user): RedirectResponse
+    {
+        $this->guardTarget($user);
+
+        $user->update(['status' => 'active']);
+        activity('staff')->performedOn($user)->causedBy($request->user())->log("Activated staff {$user->email}");
+
+        return back()->with('success', "{$user->name} is active again and can sign in.");
+    }
+
     /** Only staff accounts are managed here, and only a Super Admin may manage another Super Admin. */
     private function guardTarget(User $user): void
     {
@@ -111,10 +122,7 @@ class StaffController extends Controller implements HasMiddleware
     {
         $request->merge(['mobile' => preg_replace('/\D/', '', (string) $request->input('mobile')) ?: null]);
 
-        $roles = collect($this->roles())->keys();
-        if (! $request->user()->hasRole(config('rbac.super_admin_role'))) {
-            $roles = $roles->reject(fn ($r) => $r === config('rbac.super_admin_role')); // only a super admin can create another
-        }
+        $roles = collect($this->assignableRoles($user))->keys();
 
         return $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -135,5 +143,27 @@ class StaffController extends Controller implements HasMiddleware
     {
         return Role::where('name', '!=', 'customer')->orderBy('id')->pluck('name')
             ->mapWithKeys(fn ($r) => [$r => config("rbac.roles.$r.label", ucwords(str_replace('-', ' ', $r)))])->all();
+    }
+
+    /** Roles that can be given from the staff form */
+    private const STAFF_ROLES = ['staff', 'accountant'];
+
+    /**
+     * Roles offered on the staff form: Staff and Accountant. When editing someone who already has
+     * another role (e.g. a super admin), that role is offered too so saving does not change it —
+     * a super admin role only for a super admin editor.
+     *
+     * @return array<string, string>
+     */
+    private function assignableRoles(?User $user = null): array
+    {
+        $super = config('rbac.super_admin_role');
+        $names = self::STAFF_ROLES;
+        $current = $user?->exists ? $user->getRoleNames()->first() : null;
+        if ($current && ! in_array($current, $names, true) && ($current !== $super || auth()->user()->hasRole($super))) {
+            array_unshift($names, $current);
+        }
+
+        return collect($names)->mapWithKeys(fn ($r) => [$r => config("rbac.roles.$r.label", ucwords(str_replace('-', ' ', $r)))])->all();
     }
 }

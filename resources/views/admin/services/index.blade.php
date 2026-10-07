@@ -19,17 +19,16 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th class="col-sl">#</th><th>Service</th><th>Category</th><th>Price</th><th>Type</th><th>Applications</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Service</th><th>Category &amp; type</th><th class="text-end">Price</th><th class="text-center">Apps</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
                 <tbody>
                 @foreach ($services as $s)
                     <tr>
                         <td class="col-sl" data-label="#">{{ $services->firstItem() + $loop->index }}</td>
-                        <td data-label="Service"><span class="d-inline-flex align-items-center gap-3"><span class="svc-thumb"><img src="{{ $s->imageUrl() }}" alt="" loading="lazy" width="72" height="48"><i class="bi {{ $s->iconClass() }}"></i></span><span><span class="fw-semibold text-navy">{{ $s->name }}</span> @if ($s->is_featured)<i class="bi bi-star-fill text-warning small" title="Featured"></i>@endif<br><small class="text-muted">/services/{{ $s->slug }}</small></span></span></td>
-                        <td data-label="Category">{{ $s->category?->name }}</td>
-                        <td data-label="Price">@if ($s->hasDiscount())<span class="price-old small">{{ money($s->price, false) }}</span><br>@endif<strong>{{ money($s->effectivePrice(), false) }}</strong></td>
-                        <td data-label="Type">@if ($s->isRecurring())<span class="badge badge-soft-teal">{{ $s->intervalLabel() }}</span>@else<span class="badge badge-soft-secondary">One-time</span>@endif</td>
-                        <td data-label="Applications">{{ $s->applications_count }}</td>
-                        <td data-label="Status"><span class="badge badge-soft-{{ $s->status ? 'success' : 'secondary' }}">{{ $s->status ? 'Active' : 'Disabled' }}</span></td>
+                        <td data-label="Service" title="{{ $s->name }}"><span class="svc-cell"><span class="svc-thumb"><img src="{{ $s->imageUrl() }}" alt="" loading="lazy" width="72" height="48"><i class="bi {{ $s->iconClass() }}"></i></span><span class="min-w-0"><span class="fw-semibold text-navy d-block text-truncate">{{ $s->name }} @if ($s->is_featured)<i class="bi bi-star-fill text-warning small" title="Featured"></i>@endif</span><small class="text-muted d-block text-truncate">/services/{{ $s->slug }}</small></span></span></td>
+                        <td data-label="Category &amp; type" class="stack-multi td-clip narrow" title="{{ $s->category?->name }}"><span class="d-block">{{ $s->category?->name }}</span><span class="d-block mt-1">@if ($s->isRecurring())<span class="badge badge-soft-teal">{{ $s->intervalLabel() }}</span>@else<span class="badge badge-soft-secondary">One-time</span>@endif</span></td>
+                        <td data-label="Price" class="text-end text-nowrap stack-multi"><strong class="d-block">{{ money($s->effectivePrice(), false) }}</strong>@if ($s->hasDiscount())<span class="price-old small d-block">{{ money($s->price, false) }}</span>@endif</td>
+                        <td data-label="Apps" class="text-center"><a href="{{ route('admin.applications.index', ['service' => $s->id]) }}" class="count-pill {{ $s->applications_count ? 'has' : '' }}" title="Applications for this service">{{ $s->applications_count }}</a></td>
+                        <td data-label="Status"><span class="status-dot {{ $s->status ? 'on' : 'off' }}">{{ $s->status ? 'Active' : 'Disabled' }}</span></td>
                         <td class="td-actions text-end text-nowrap">
                             <a href="{{ route('site.services.show', $s->slug) }}" target="_blank" class="btn btn-sm btn-light" title="View on site"><i class="bi bi-box-arrow-up-right"></i></a>
                             @can('services.manage')

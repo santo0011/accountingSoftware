@@ -102,17 +102,22 @@
             <div class="card-header d-flex justify-content-between align-items-center">Recent applications <a href="{{ route('admin.applications.index') }}" class="small">View all</a></div>
             <div class="table-responsive">
                 <table class="table table-hover table-stack">
-                    <thead><tr><th>Application</th><th>Customer</th><th>Service</th><th>Status</th></tr></thead>
+                    <thead><tr><th>Application</th><th>Customer &amp; service</th><th>Status</th></tr></thead>
                     <tbody>
                     @forelse ($recentApplications as $app)
                         <tr>
-                            <td data-label="Application"><a href="{{ route('admin.applications.show', $app) }}" class="fw-semibold">{{ $app->application_no }}</a><br><small class="text-muted">{{ $app->created_at->diffForHumans() }}</small></td>
-                            <td data-label="Customer">{{ $app->customer->user->name }}</td>
-                            <td data-label="Service">{{ $app->service->name }}</td>
-                            <td data-label="Status"><x-status-badge :status="$app->status" /></td>
+                            <td data-label="Application" class="text-nowrap stack-multi">
+                                <a href="{{ route('admin.applications.show', $app) }}" class="fw-semibold d-block">{{ $app->application_no }}</a>
+                                <small class="text-muted d-block">{{ $app->created_at->diffForHumans(short: true) }}</small>
+                            </td>
+                            <td data-label="Customer &amp; service" class="stack-multi td-clip" title="{{ $app->customer->user->name }} · {{ $app->service->name }}">
+                                <span class="d-block">{{ $app->customer->user->name }}</span>
+                                <small class="text-muted d-block">{{ $app->service->name }}</small>
+                            </td>
+                            <td data-label="Status" class="text-nowrap"><x-status-badge :status="$app->status" /></td>
                         </tr>
                     @empty
-                        <tr><td colspan="4"><x-empty-state title="No applications" /></td></tr>
+                        <tr><td colspan="3"><x-empty-state title="No applications" /></td></tr>
                     @endforelse
                     </tbody>
                 </table>

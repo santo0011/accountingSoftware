@@ -79,7 +79,7 @@ class ApplicationService
         });
 
         $customer->user->notify(new ApplicationSubmitted($application));
-        Notification::send(User::role(['super-admin', 'admin'])->where('status', 'active')->get(), new ApplicationSubmitted($application));
+        Notification::send(User::role(config('rbac.super_admin_role'))->where('status', 'active')->get(), new ApplicationSubmitted($application));
 
         return $application;
     }

@@ -131,6 +131,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'user.type:backoffic
     Route::get('/invoices/{invoice}', [Admin\InvoiceController::class, 'show'])->name('invoices.show');
     Route::get('/invoices/{invoice}/pdf', [Admin\InvoiceController::class, 'pdf'])->name('invoices.pdf');
 
+    Route::post('staff/{user}/activate', [Admin\StaffController::class, 'activate'])->name('staff.activate');
     Route::resource('staff', Admin\StaffController::class)->except('show')->parameters(['staff' => 'user']);
     Route::resource('professionals', Admin\ProfessionalController::class)->except('show');
     Route::resource('roles', Admin\RoleController::class)->except('show');

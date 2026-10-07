@@ -26,7 +26,7 @@
     let confirmTarget = null;
 
     const DANGER = /^(delete|remove|deactivate|cancel|disable|revoke|reject|archive)\b/i;
-    const ICONS = { delete: 'bi-trash3', remove: 'bi-x-circle', deactivate: 'bi-person-slash', cancel: 'bi-x-octagon', disable: 'bi-slash-circle', mark: 'bi-check2-circle', confirm: 'bi-check2-circle', create: 'bi-person-plus' };
+    const ICONS = { delete: 'bi-trash3', remove: 'bi-x-circle', deactivate: 'bi-person-slash', cancel: 'bi-x-octagon', disable: 'bi-slash-circle', mark: 'bi-check2-circle', confirm: 'bi-check2-circle', create: 'bi-person-plus', activate: 'bi-person-check' };
 
     const openConfirm = (form, submitter) => {
         const msg = form.dataset.confirm;
@@ -271,6 +271,27 @@
             if (remove.checked) show(box.dataset.default || null, box.dataset.default ? 'Default image — after saving' : 'Removed — after saving', 'removed');
         });
         if (remove?.checked) remove.dispatchEvent(new Event('change'));
+    });
+
+    // Quick date chips: <div class="quick-dates" data-for="f_due_date"><button type="button" data-days="1">Tomorrow</button></div>
+    document.querySelectorAll('.quick-dates[data-for]').forEach((group) => {
+        const input = document.getElementById(group.dataset.for);
+        if (!input) return;
+        const iso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        const buttons = [...group.querySelectorAll('button[data-days]')];
+        buttons.forEach((b) => {
+            const d = new Date();
+            d.setDate(d.getDate() + parseInt(b.dataset.days, 10));
+            b.dataset.value = iso(d);
+            b.addEventListener('click', () => {
+                input.value = b.dataset.value;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        });
+        const mark = () => buttons.forEach((b) => b.classList.toggle('active', b.dataset.value === input.value));
+        input.addEventListener('change', mark);
+        input.addEventListener('input', mark);
+        mark();
     });
 
     // Multi-step wizard: <div data-wizard> with .wizard-pane children and [data-step] indicators.

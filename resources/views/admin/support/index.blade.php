@@ -22,21 +22,26 @@
 <div class="table-card">
     <div class="table-responsive">
         <table class="table table-hover table-stack">
-            <thead><tr><th class="col-sl">#</th><th>Ticket</th><th>Customer</th><th>Category</th><th>Priority</th><th>Assigned</th><th>Last activity</th><th>Status</th></tr></thead>
+            <thead><tr><th class="col-sl">#</th><th>Ticket</th><th>Customer &amp; category</th><th>Priority</th><th>Assigned</th><th>Last activity</th><th>Status</th></tr></thead>
             <tbody>
             @forelse ($tickets as $t)
                 <tr>
                     <td class="col-sl" data-label="#">{{ $tickets->firstItem() + $loop->index }}</td>
-                    <td data-label="Ticket"><a href="{{ route('admin.support.show', $t) }}" class="fw-semibold">{{ $t->subject }}</a><br><small class="text-muted">{{ $t->ticket_no }} · {{ $t->messages_count }} messages</small></td>
-                    <td data-label="Customer">{{ $t->customer->user->name }}</td>
-                    <td data-label="Category">{{ $t->categoryLabel() }}</td>
+                    <td data-label="Ticket" class="stack-multi td-clip wide" title="{{ $t->subject }}">
+                        <a href="{{ route('admin.support.show', $t) }}" class="fw-semibold d-block">{{ $t->subject }}</a>
+                        <small class="text-muted d-block">{{ $t->ticket_no }} · {{ $t->messages_count }} {{ \Illuminate\Support\Str::plural('message', $t->messages_count) }}</small>
+                    </td>
+                    <td data-label="Customer &amp; category" class="stack-multi td-clip narrow" title="{{ $t->customer->user->name }} · {{ $t->categoryLabel() }}">
+                        <span class="d-block">{{ $t->customer->user->name }}</span>
+                        <small class="text-muted d-block">{{ $t->categoryLabel() }}</small>
+                    </td>
                     <td data-label="Priority"><span class="badge badge-soft-{{ $t->priorityColor() }}">{{ ucfirst($t->priority) }}</span></td>
-                    <td data-label="Assigned">{{ $t->assignee?->name ?? '—' }}</td>
-                    <td data-label="Last activity">{{ $t->last_reply_at?->diffForHumans() }}</td>
-                    <td data-label="Status"><x-status-badge :status="$t->status" /></td>
+                    <td data-label="Assigned" class="text-nowrap">{{ $t->assignee?->name ?? '—' }}</td>
+                    <td data-label="Last activity" class="text-nowrap" title="{{ $t->last_reply_at?->format('d M Y, h:i A') }}">{{ $t->last_reply_at?->diffForHumans(short: true) ?? '—' }}</td>
+                    <td data-label="Status" class="text-nowrap"><x-status-badge :status="$t->status" /></td>
                 </tr>
             @empty
-                <tr><td colspan="8"><x-empty-state icon="bi-headset" title="No tickets" /></td></tr>
+                <tr><td colspan="7"><x-empty-state icon="bi-headset" title="No tickets" /></td></tr>
             @endforelse
             </tbody>
         </table>
