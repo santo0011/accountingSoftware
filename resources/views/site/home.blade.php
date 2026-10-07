@@ -12,80 +12,75 @@
 @section('content')
 
 {{-- ============ HERO ============ --}}
-<section class="hero-n">
+<section class="hero-n hero-s">
     <div class="hero-n-bg" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
     <div class="container position-relative">
         <div class="row align-items-center g-5">
             <div class="col-lg-6 hero-n-copy">
-                <span class="hero-n-badge"><span class="tag">New</span> 100% online filings with expert CAs &amp; lawyers <i class="bi bi-arrow-right"></i></span>
-                <h1>Start, run &amp; grow your business <span class="hero-n-hl">without the paperwork.</span></h1>
-                <p class="hero-n-lead">Company registration, GST, trademark and compliance — handled end-to-end by qualified experts, at fixed prices you see upfront.</p>
+                <span class="hero-s-trust">
+                    <span class="hs-avatars" aria-hidden="true"><span>RK</span><span>AS</span><span>PM</span></span>
+                    <span class="hs-trust-text"><span class="stars" aria-hidden="true"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></span> Trusted by <strong>{{ setting('stat_customers', '10,000+') }}</strong> businesses</span>
+                </span>
+                <h1>All your business compliance needs <span class="hero-n-hl"><span class="hs-mark">Under One Roof<svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M3 14 C 60 4, 130 3, 297 10" /></svg></span>.</span></h1>
+                <p class="hero-n-lead">Company registration, GST, trademark and compliance — handled online by expert CAs and lawyers, at fixed prices.</p>
 
                 <div class="hero-n-actions">
                     <a href="{{ route('site.services.index') }}" class="btn btn-cta btn-lg">Get Started <i class="bi bi-arrow-right ms-1"></i></a>
                     <a href="{{ route('site.contact') }}" class="btn hero-n-btn-alt btn-lg"><i class="bi bi-headset me-1"></i> Talk to an Expert</a>
                 </div>
 
-                @if ($categories->isNotEmpty())
-                    <div class="hero-n-quick">
-                        <span class="hero-n-quick-label">Popular:</span>
-                        @foreach ($categories->take(5) as $item)
-                            <a href="{{ route('site.categories.show', $item['category']->slug) }}"><i class="bi {{ $item['category']->icon }}"></i> {{ $item['label'] }}</a>
-                        @endforeach
-                    </div>
-                @endif
-
-                <div class="hero-n-trust">
-                    <div class="hero-n-avatars" aria-hidden="true"><span>RK</span><span>AS</span><span>PM</span><span>+</span></div>
-                    <div>
-                        <div class="stars" aria-hidden="true"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
-                        <small><strong>{{ setting('stat_rating', '4.8/5') }}</strong> from {{ setting('stat_customers', '10,000+') }} businesses</small>
-                    </div>
-                </div>
+                <ul class="hs-features">
+                    <li><span class="ic"><i class="bi bi-laptop"></i></span><span><strong>100% online</strong><small>No office visits</small></span></li>
+                    <li><span class="ic"><i class="bi bi-tag"></i></span><span><strong>Fixed pricing</strong><small>No hidden fees</small></span></li>
+                    <li><span class="ic"><i class="bi bi-person-check"></i></span><span><strong>Expert-led</strong><small>CAs, CSs &amp; lawyers</small></span></li>
+                </ul>
             </div>
 
             <div class="col-lg-6">
-                {{-- Bento of mock product cards: what customers get after applying --}}
-                <div class="hero-n-bento" data-tilt>
-                    <div class="bn-photo">
+                {{-- Round photo with slow orbit rings centred on it, plus two small chips --}}
+                <div class="hero-s-visual">
+                    <div class="hero-s-orbit" aria-hidden="true">
+                        <span class="so-ripple"></span><span class="so-ripple d2"></span>
+                        <span class="so-ring s1"><i class="ob-dot"></i></span>
+                        <span class="so-ring s2"><i class="ob-dot green" style="--at: 140deg"></i><i class="ob-dot sm teal" style="--at: 285deg"></i></span>
+                        <span class="so-ring s3"></span>
+                        <span class="so-comet"></span>
+                    </div>
+                    <div class="hero-s-photo">
                         <img src="{{ $heroImage }}" alt="Business team celebrating a completed registration" width="1100" height="900" fetchpriority="high">
-                        <span class="bn-photo-tag" aria-hidden="true"><i class="bi bi-patch-check-fill"></i> Expert CA assigned</span>
                     </div>
-
-                    <div class="bn-card bn-tracker" aria-hidden="true">
-                        <div class="trk-head">
-                            <span class="trk-icon"><i class="bi bi-building"></i></span>
-                            <span class="trk-title"><strong>Company Registration</strong><small>In progress</small></span>
-                            <span class="trk-pct">75%</span>
-                        </div>
-                        <div class="trk-bar"><span></span></div>
-                        <ul class="trk-steps">
-                            <li class="done"><i class="bi bi-check-lg"></i> Documents verified</li>
-                            <li class="done"><i class="bi bi-check-lg"></i> Name approved</li>
-                            <li class="now"><i class="bi bi-arrow-repeat"></i> Filing incorporation</li>
-                        </ul>
-                    </div>
-
-                    <div class="bn-card bn-dark" aria-hidden="true">
-                        <span class="bn-kicker">Next due</span>
-                        <strong>GSTR-3B</strong>
-                        <div class="bn-cal"><span class="d">20</span><span class="m">Oct<small>Auto-reminder on</small></span></div>
-                    </div>
-
-                    <div class="bn-card bn-experts" aria-hidden="true">
-                        <div class="hero-n-avatars sm"><span>CA</span><span>CS</span><span>LW</span></div>
-                        <strong>{{ setting('stat_experts', '100+') }} experts</strong>
-                        <small><span class="live"></span> Online now</small>
-                    </div>
-
-                    <div class="bn-toast" aria-hidden="true">
+                    <div class="hero-s-chip chip-a" aria-hidden="true">
                         <span class="ic"><i class="bi bi-check2"></i></span>
-                        <span><strong>GST return filed</strong><small>Acknowledgement sent · just now</small></span>
+                        <span>
+                            <strong>GST return filed</strong>
+                            <small>GSTR-3B · {{ now()->subMonth()->format('M') }} <em class="live">Just now</em></small>
+                        </span>
+                    </div>
+                    <div class="hero-s-chip chip-b" aria-hidden="true">
+                        <span class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></span>
+                        <span><strong>{{ setting('stat_rating', '4.8/5') }}</strong><small>Customer rating</small></span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    @if ($categories->isNotEmpty())
+        {{-- Endless strip of categories along the bottom of the hero; the list is repeated once so the loop is seamless --}}
+        <div class="hero-marquee">
+            <div class="hero-marquee-track">
+                @foreach ([false, true] as $copy)
+                    <div class="hero-marquee-group" @if ($copy) aria-hidden="true" @endif>
+                        @foreach ($categories as $item)
+                            <a href="{{ route('site.categories.show', $item['category']->slug) }}" @if ($copy) tabindex="-1" @endif>
+                                <i class="bi {{ $item['category']->icon }}"></i> {{ $item['label'] }}
+                            </a>
+                        @endforeach
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 </section>
 
 <div class="hero-x-stats hero-n-stats">

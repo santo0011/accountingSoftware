@@ -24,13 +24,25 @@
     </div>
 </form>
 
+{{-- Summary cards in the dashboard KPI style: [label, value, icon, tone, hint] --}}
 <div class="row g-3 mb-4">
-    <div class="col-6 col-lg-2"><x-stat-card label="Revenue" :value="money($summary['revenue'], false)" icon="bi-currency-rupee" color="green" /></div>
-    <div class="col-6 col-lg-2"><x-stat-card label="Payments" :value="$summary['payments']" icon="bi-credit-card" /></div>
-    <div class="col-6 col-lg-2"><x-stat-card label="Applications" :value="$summary['applications']" icon="bi-folder2-open" /></div>
-    <div class="col-6 col-lg-2"><x-stat-card label="New customers" :value="$summary['new_customers']" icon="bi-people" color="teal" /></div>
-    <div class="col-6 col-lg-2"><x-stat-card label="Leads" :value="$summary['leads']" icon="bi-person-lines-fill" color="amber" /></div>
-    <div class="col-6 col-lg-2"><x-stat-card label="Lead conversion" :value="($summary['leads'] ? round($summary['converted'] / $summary['leads'] * 100) : 0).'%'" icon="bi-graph-up-arrow" color="green" /></div>
+    @foreach ([
+        ['Revenue', money($summary['revenue'], false), 'bi-currency-rupee', 'green', 'Collected'],
+        ['Payments', $summary['payments'], 'bi-credit-card', 'blue', 'In this period'],
+        ['Applications', $summary['applications'], 'bi-folder2-open', 'sky', 'In this period'],
+        ['New customers', $summary['new_customers'], 'bi-people', 'teal', 'Joined'],
+        ['Leads', $summary['leads'], 'bi-person-lines-fill', 'amber', 'Captured'],
+        ['Lead conversion', ($summary['leads'] ? round($summary['converted'] / $summary['leads'] * 100) : 0).'%', 'bi-graph-up-arrow', 'violet', $summary['converted'].' converted'],
+    ] as [$label, $value, $icon, $tone, $hint])
+        <div class="col-6 col-md-4">
+            <div class="kpi kpi-{{ $tone }}">
+                <div class="kpi-top"><span class="kpi-icon"><i class="bi {{ $icon }}"></i></span></div>
+                <div class="kpi-value">{{ $value }}</div>
+                <div class="kpi-label">{{ $label }}</div>
+                <span class="kpi-hint">{{ $hint }}</span>
+            </div>
+        </div>
+    @endforeach
 </div>
 
 <div class="row g-4">
