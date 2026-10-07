@@ -2,7 +2,7 @@
 @section('title', (string) ('Apply: '.$service->name))
 
 @section('content')
-<x-page-header :title="'Apply for '.$service->name" :subtitle="$service->short_description" :back="route('site.services.show', $service->slug)" />
+<x-page-header :title="'Apply for '.$service->name" :subtitle="$service->short_description" :back="route('site.services.show', $service->slug)" back-label="Back to service" />
 
 <form method="POST" action="{{ route('portal.applications.store', $service->slug) }}" enctype="multipart/form-data" novalidate>
     @csrf
@@ -55,7 +55,7 @@
             <div class="wizard-pane card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     Upload documents
-                    <span class="small text-muted fw-normal">PDF, JPG, PNG, DOC · max 5 MB each</span>
+                    <span class="small text-muted fw-normal">PDF, Word or any photo · max 5 MB each</span>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info small"><i class="bi bi-info-circle me-1"></i>Don't have everything handy? You can submit now and upload the remaining documents later from your application page.</div>
@@ -70,7 +70,7 @@
                                 </div>
                                 <label class="btn btn-sm btn-outline-primary mb-0">
                                     Choose file
-                                    <input type="file" name="documents[{{ $doc->id }}]" class="d-none {{ $errors->has($key) ? 'is-invalid' : '' }}" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" data-review-label="{{ $doc->name }}">
+                                    <input type="file" name="documents[{{ $doc->id }}]" class="d-none {{ $errors->has($key) ? 'is-invalid' : '' }}" accept="{{ \App\Support\FileTypes::accept(\App\Support\FileTypes::DOCUMENTS) }}" data-review-label="{{ $doc->name }}">
                                 </label>
                             </div>
                             @error($key)<div class="text-danger small mt-2">{{ $message }}</div>@enderror

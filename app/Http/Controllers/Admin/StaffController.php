@@ -56,7 +56,7 @@ class StaffController extends Controller implements HasMiddleware
             $user->staffProfile()->create(collect($data)->only(['employee_code', 'department', 'designation', 'joined_on'])->all());
         });
 
-        return redirect()->route('admin.staff.index')->with('success', 'Staff member added.');
+        return $this->toList('admin.staff.index')->with('success', 'Staff member added.');
     }
 
     public function edit(User $user): View
@@ -84,7 +84,7 @@ class StaffController extends Controller implements HasMiddleware
 
         activity('staff')->performedOn($user)->causedBy($request->user())->log("Updated staff {$user->email} (role: {$data['role']})");
 
-        return redirect()->route('admin.staff.index')->with('success', 'Staff member updated.');
+        return $this->toList('admin.staff.index')->with('success', 'Staff member updated.');
     }
 
     public function destroy(Request $request, User $user): RedirectResponse

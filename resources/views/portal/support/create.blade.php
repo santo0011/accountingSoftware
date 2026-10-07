@@ -16,7 +16,7 @@
                     <x-form.select name="application_id" label="Related application" :options="$applications" :value="$selected" placeholder="None" col="col-md-4 mb-3" />
                 </div>
                 <x-form.textarea name="message" label="Message" rows="6" required />
-                <x-form.input name="attachment" type="file" label="Attachment (optional)" help="PDF, JPG, PNG or DOC up to 5 MB." accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+                <x-form.input name="attachment" type="file" label="Attachment (optional)" help="PDF, Word or any photo (JPG, PNG, JFIF, HEIC…), up to 5 MB." accept="{{ \App\Support\FileTypes::accept(\App\Support\FileTypes::DOCUMENTS) }}" />
             </div>
             <div class="card-footer bg-white text-end"><button class="btn btn-cta">Submit Ticket</button></div>
         </form>

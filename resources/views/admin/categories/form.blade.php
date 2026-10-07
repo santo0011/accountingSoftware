@@ -14,12 +14,8 @@
         <x-form.textarea name="description" label="Description" :value="$category->description" rows="3" col="col-12 mb-3" />
         <x-form.input name="icon" label="Icon" :value="$category->icon" placeholder="bi-building" help="Any Bootstrap Icons class (icons.getbootstrap.com)." col="col-md-4 mb-3" />
         <x-form.input name="sort_order" type="number" label="Sort order" :value="$category->sort_order" col="col-md-2 mb-3" />
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Banner image</label>
-            <input type="file" name="banner" class="form-control @error('banner') is-invalid @enderror" accept="image/*">
-            @error('banner')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            @if ($category->banner_image)<img src="{{ storage_asset($category->banner_image) }}" alt="" class="mt-2 rounded" style="max-height:60px">@endif
-        </div>
+        <x-form.image name="banner" label="Banner image" :current="$category->banner_image ? storage_asset($category->banner_image) : null"
+            ratio="16 / 7" help="JPG, PNG, WebP, GIF or JFIF, up to 2 MB. Wide images (about 1600×700 px) look best." col="col-md-6 mb-3" />
         <x-form.input name="seo_title" label="SEO title" :value="$category->seo_title" col="col-md-6 mb-3" />
         <x-form.input name="seo_description" label="SEO description" :value="$category->seo_description" col="col-md-6 mb-3" />
         <x-form.check name="status" label="Visible on website" :checked="$category->status" col="col-12" />

@@ -29,27 +29,10 @@
                 <x-form.input name="company_gstin" label="GSTIN" :value="$v('company_gstin')" col="col-md-4 mb-3" />
                 <x-form.input name="company_pan" label="PAN" :value="$v('company_pan')" col="col-md-4 mb-3" />
                 <x-form.input name="business_hours" label="Business hours" :value="$v('business_hours')" col="col-md-4 mb-3" />
-                <div class="col-md-6 mb-3">
-                    <label class="form-label" for="logo">Logo</label>
-                    <input type="file" name="logo" id="logo" class="form-control @error('logo') is-invalid @enderror" accept=".png,.jpg,.jpeg,.webp"
-                        data-image-preview="#logoPreview" data-max-kb="2048">
-                    @error('logo')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    <div class="img-preview img-preview-sm mt-2" id="logoPreview">
-                        <div class="img-preview-frame">
-                            <img src="{{ ! empty($s['logo']) ? storage_asset($s['logo']) : '' }}" alt="Logo preview" data-preview-img @if (empty($s['logo'])) hidden @endif>
-                            <span class="img-preview-empty" data-preview-empty @if (! empty($s['logo'])) hidden @endif>No logo uploaded — the text logo is used.</span>
-                        </div>
-                        <div class="img-preview-meta">
-                            <span data-preview-info class="text-muted small"></span>
-                            <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-auto" data-preview-undo hidden><i class="bi bi-arrow-counterclockwise me-1"></i>Undo</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Favicon (PNG/ICO)</label>
-                    <input type="file" name="favicon" class="form-control @error('favicon') is-invalid @enderror" accept=".png,.ico">
-                    @error('favicon')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                </div>
+                <x-form.image name="logo" id="logo" label="Logo" :current="! empty($s['logo']) ? storage_asset($s['logo']) : null"
+                    fit="contain" ratio="3 / 1" help="PNG, JPG, WebP, GIF or JFIF, up to 2 MB. No logo? The text logo is used." col="col-md-6 mb-3" />
+                <x-form.image name="favicon" label="Favicon" :current="! empty($s['favicon']) ? storage_asset($s['favicon']) : null"
+                    accept=".png,.ico,.jpg,.jpeg,.jfif,.gif" :max-kb="256" fit="contain" ratio="3 / 1" help="Square PNG, ICO, JPG or GIF (e.g. 64×64 px), up to 256 KB." col="col-md-6 mb-3" />
             </div></div>
         </div>
 
@@ -161,32 +144,10 @@
 
         <div class="tab-pane fade" id="tab-homepage">
             <div class="card"><div class="card-body row">
-                <div class="col-md-6 mb-4">
-                    <label class="form-label" for="hero_image">Hero section image</label>
-                    <input type="file" name="hero_image" id="hero_image" class="form-control @error('hero_image') is-invalid @enderror" accept=".png,.jpg,.jpeg,.webp"
-                        data-image-preview="#heroPreview" data-max-kb="2048">
-                    @error('hero_image')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    <div class="form-text">PNG, JPG or WebP, max 2 MB. Landscape around 1100×900 px works best.</div>
-                    @if (! empty($s['hero_image']))
-                        <div class="form-check mt-2">
-                            <input type="checkbox" name="hero_image_reset" value="1" class="form-check-input" id="hero_image_reset"
-                                data-reset-preview="#heroPreview" data-reset-src="{{ asset('images/site/hero.webp') }}">
-                            <label class="form-check-label" for="hero_image_reset">Remove and use the default image</label>
-                        </div>
-                    @endif
-                </div>
-                <div class="col-md-6 mb-4">
-                    <div class="img-preview" id="heroPreview">
-                        <div class="img-preview-frame">
-                            <img src="{{ ! empty($s['hero_image']) ? storage_asset($s['hero_image']) : asset('images/site/hero.webp') }}" alt="Hero image preview" data-preview-img>
-                            <span class="img-preview-badge" data-preview-badge>{{ ! empty($s['hero_image']) ? 'Current: custom image' : 'Current: default image' }}</span>
-                        </div>
-                        <div class="img-preview-meta">
-                            <span data-preview-info class="text-muted small"></span>
-                            <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-auto" data-preview-undo hidden><i class="bi bi-arrow-counterclockwise me-1"></i>Undo</button>
-                        </div>
-                    </div>
-                </div>
+                <x-form.image name="hero_image" id="hero_image" label="Hero section image" :current="! empty($s['hero_image']) ? storage_asset($s['hero_image']) : null"
+                    :default="asset('images/site/hero.webp')" ratio="11 / 9" remove="hero_image_reset"
+                    help="JPG, PNG, WebP, GIF or JFIF, up to 2 MB. About 1100×900 px works best." col="col-md-6 mb-4" />
+                <div class="w-100"></div>
                 <x-form.input name="stat_customers" label="Happy customers" :value="$v('stat_customers')" col="col-md-3 mb-3" />
                 <x-form.input name="stat_services" label="Services" :value="$v('stat_services')" col="col-md-3 mb-3" />
                 <x-form.input name="stat_experts" label="Experts" :value="$v('stat_experts')" col="col-md-3 mb-3" />
@@ -244,76 +205,6 @@
     // A field with a validation error wins: show its tab.
     var invalid = document.querySelector('.tab-pane .is-invalid');
     if (invalid) bootstrap.Tab.getOrCreateInstance(document.querySelector('[data-bs-target="#' + invalid.closest('.tab-pane').id + '"]')).show();
-
-    // Instant preview for image uploads: <input type="file" data-image-preview="#box" data-max-kb="2048">
-    document.querySelectorAll('[data-image-preview]').forEach(function (input) {
-        var box = document.querySelector(input.dataset.imagePreview);
-        var img = box.querySelector('[data-preview-img]');
-        var badge = box.querySelector('[data-preview-badge]');
-        var empty = box.querySelector('[data-preview-empty]');
-        var info = box.querySelector('[data-preview-info]');
-        var undo = box.querySelector('[data-preview-undo]');
-        var original = { src: img.getAttribute('src'), hidden: img.hidden, badge: badge ? badge.textContent : '' };
-        var objectUrl = null;
-
-        function restore() {
-            if (objectUrl) URL.revokeObjectURL(objectUrl);
-            objectUrl = null;
-            img.src = original.src;
-            img.hidden = original.hidden;
-            if (empty) empty.hidden = !original.hidden;
-            if (badge) { badge.textContent = original.badge; badge.classList.remove('is-new'); }
-            box.classList.remove('is-new');
-            info.textContent = '';
-            info.classList.remove('text-danger');
-            undo.hidden = true;
-        }
-
-        input.addEventListener('change', function () {
-            var file = input.files[0];
-            restore();
-            if (!file) return;
-
-            var maxKb = parseInt(input.dataset.maxKb || '0', 10);
-            var problem = !/^image\/(png|jpe?g|webp)$/.test(file.type) ? 'Please choose a PNG, JPG or WebP image.'
-                : (maxKb && file.size > maxKb * 1024) ? 'This image is ' + Math.round(file.size / 1024) + ' KB — the limit is ' + (maxKb >= 1024 ? (maxKb / 1024) + ' MB' : maxKb + ' KB') + '.'
-                : null;
-            if (problem) {
-                input.value = '';
-                info.textContent = problem;
-                info.classList.add('text-danger');
-                return;
-            }
-
-            objectUrl = URL.createObjectURL(file);
-            img.src = objectUrl;
-            img.hidden = false;
-            if (empty) empty.hidden = true;
-            if (badge) { badge.textContent = 'New — not saved yet'; badge.classList.add('is-new'); }
-            box.classList.add('is-new');
-            undo.hidden = false;
-            img.onload = function () {
-                info.textContent = file.name + ' · ' + img.naturalWidth + '×' + img.naturalHeight + ' px · ' + Math.round(file.size / 1024) + ' KB — click Save Settings to apply.';
-            };
-
-            // Picking a new image cancels "use the default image".
-            var reset = document.querySelector('[data-reset-preview="' + input.dataset.imagePreview + '"]');
-            if (reset) reset.checked = false;
-        });
-
-        undo.addEventListener('click', function () { input.value = ''; restore(); });
-
-        // "Remove and use the default image" previews the default straight away.
-        var reset = document.querySelector('[data-reset-preview="' + input.dataset.imagePreview + '"]');
-        if (reset) reset.addEventListener('change', function () {
-            input.value = '';
-            restore();
-            if (!reset.checked) return;
-            img.src = reset.dataset.resetSrc;
-            if (badge) { badge.textContent = 'Default image — after saving'; badge.classList.add('is-new'); }
-            box.classList.add('is-new');
-        });
-    });
 })();
 </script>
 @endpush

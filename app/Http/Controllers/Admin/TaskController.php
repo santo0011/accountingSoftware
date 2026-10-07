@@ -37,7 +37,7 @@ class TaskController extends Controller implements HasMiddleware
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status), fn ($q) => $q->whereIn('status', [TaskStatus::Pending, TaskStatus::InProgress]))
             ->when($request->filled('priority'), fn ($q) => $q->where('priority', $request->priority))
             ->when($request->filled('assignee') && $scope !== 'mine', fn ($q) => $q->where('assigned_to', $request->assignee))
-            ->orderByRaw('due_date is null')->orderBy('due_date')->paginate(per_page(25))->withQueryString();
+            ->orderByRaw('due_date is null')->orderBy('due_date')->paginate(per_page(20))->withQueryString();
 
         return view('admin.tasks.index', ['tasks' => $tasks, 'scope' => $scope] + $this->options());
     }
@@ -127,7 +127,7 @@ class TaskController extends Controller implements HasMiddleware
         return match (true) {
             $task->taskable instanceof Application => redirect()->to(route('admin.applications.show', $task->taskable).'#tab-tasks'),
             $task->taskable instanceof Lead => redirect()->route('admin.leads.show', $task->taskable),
-            default => redirect()->route('admin.tasks.index'),
+            default => $this->toList('admin.tasks.index'),
         };
     }
 

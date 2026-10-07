@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\Service;
 use App\Models\ServiceField;
+use App\Support\FileTypes;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -36,7 +37,7 @@ class ServiceRequest extends FormRequest
             'icon' => ['nullable', 'string', 'max:60', 'regex:/^bi-[a-z0-9-]+$/'],
             'short_description' => ['required', 'string', 'max:500'],
             'tagline' => ['nullable', 'string', 'max:120'],
-            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'image' => ['nullable', 'file', FileTypes::rule(FileTypes::WEB_IMAGES), 'max:2048'],
             'remove_image' => ['nullable', 'boolean'],
             'full_description' => ['nullable', 'string', 'max:20000'],
             'who_needs_text' => ['nullable', 'string', 'max:3000'],

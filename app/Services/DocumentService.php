@@ -9,6 +9,7 @@ use App\Models\ApplicationDocument;
 use App\Models\DocumentRequest;
 use App\Models\ServiceDocument;
 use App\Models\User;
+use App\Support\FileTypes;
 use App\Notifications\DocumentReviewed;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -23,13 +24,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class DocumentService
 {
     public const DISK = 'local';
-    public const ALLOWED_MIMES = 'pdf,jpg,jpeg,png,doc,docx';
     public const MAX_KB = 5120;
 
     /** Validation rules for any uploaded document. */
     public static function fileRules(bool $required = true): array
     {
-        return [$required ? 'required' : 'nullable', 'file', 'mimes:'.self::ALLOWED_MIMES, 'max:'.self::MAX_KB];
+        return [$required ? 'required' : 'nullable', 'file', FileTypes::rule(FileTypes::DOCUMENTS), 'max:'.self::MAX_KB];
     }
 
     public function store(

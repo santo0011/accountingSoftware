@@ -77,10 +77,12 @@
 
 @push('scripts')
 <script>
-    ['failModal', 'refundModal'].forEach((id) => document.getElementById(id).addEventListener('show.bs.modal', (e) => {
+    // Delegated so it keeps working after live filtering replaces the table and modals.
+    document.addEventListener('show.bs.modal', (e) => {
+        if (!['failModal', 'refundModal'].includes(e.target.id)) return;
         const btn = e.relatedTarget, form = e.target.querySelector('form');
         form.action = btn.dataset.action;
         if (btn.dataset.amount) form.querySelector('[name=amount]').value = btn.dataset.amount;
-    }));
+    });
 </script>
 @endpush

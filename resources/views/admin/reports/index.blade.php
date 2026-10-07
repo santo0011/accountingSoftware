@@ -13,7 +13,7 @@
     </div>
 </x-page-header>
 
-<form class="filter-bar row g-2 align-items-end" method="GET">
+<form class="filter-bar row g-2 align-items-end" method="GET" data-no-live>
     <div class="col-6 col-md-3"><label class="form-label small">From</label><input type="date" name="from" value="{{ $from->toDateString() }}" class="form-control"></div>
     <div class="col-6 col-md-3"><label class="form-label small">To</label><input type="date" name="to" value="{{ $to->toDateString() }}" class="form-control"></div>
     <div class="col-md-2"><button class="btn btn-primary w-100" data-no-lock>Apply</button></div>

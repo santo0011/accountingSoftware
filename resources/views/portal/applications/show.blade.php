@@ -40,7 +40,7 @@
                             @if ($req->note)<div class="small text-muted">{{ $req->note }}</div>@endif
                             <div class="small text-muted" data-file-name data-empty="No file chosen">No file chosen</div>
                         </div>
-                        <label class="btn btn-sm btn-outline-primary mb-0">Choose file<input type="file" name="file" class="d-none" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"></label>
+                        <label class="btn btn-sm btn-outline-primary mb-0">Choose file<input type="file" name="file" class="d-none" required accept="{{ \App\Support\FileTypes::accept(\App\Support\FileTypes::DOCUMENTS) }}"></label>
                         <button class="btn btn-sm btn-cta">Upload</button>
                     </div>
                 </form>
@@ -107,7 +107,7 @@
                                     <div class="small fw-semibold text-navy">{{ $doc->name }} @if ($doc->is_mandatory)<span class="badge badge-soft-warning">Required</span>@endif</div>
                                     <div class="small text-muted" data-file-name data-empty="No file chosen">No file chosen</div>
                                 </div>
-                                <label class="btn btn-sm btn-outline-primary mb-0">Choose<input type="file" name="file" class="d-none" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"></label>
+                                <label class="btn btn-sm btn-outline-primary mb-0">Choose<input type="file" name="file" class="d-none" required accept="{{ \App\Support\FileTypes::accept(\App\Support\FileTypes::DOCUMENTS) }}"></label>
                                 <button class="btn btn-sm btn-cta">Upload</button>
                             </div>
                         </form>

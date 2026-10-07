@@ -2,7 +2,7 @@
 @section('title', (string) ('Payment'))
 
 @section('content')
-<x-page-header title="Complete your payment" :subtitle="'Application '.$application->application_no.' — '.$application->service->name" :back="route('portal.applications.show', $application)" />
+<x-page-header title="Complete your payment" :subtitle="'Application '.$application->application_no.' — '.$application->service->name" :back="route('portal.applications.show', $application)" back-label="Back to application" />
 
 @if ($awaitingVerification)
     <div class="alert alert-info"><i class="bi bi-hourglass-split me-1"></i>You submitted payment reference <strong>{{ $awaitingVerification->transaction_id }}</strong> on {{ $awaitingVerification->created_at->format('d M Y') }}. We are verifying it — you don't need to pay again.</div>

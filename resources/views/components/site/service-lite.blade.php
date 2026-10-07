@@ -1,10 +1,13 @@
 @props(['service'])
-{{-- Compact, photo-free service card used on the services listing and related lists. --}}
+{{-- Compact service card with a photo strip, used on the services listing. --}}
 <a href="{{ route('site.services.show', $service->slug) }}" class="svc-lite">
-    <span class="svc-lite-top">
-        <span class="svc-lite-icon"><i class="bi {{ $service->iconClass() }}"></i></span>
+    <span class="svc-lite-media">
+        <img src="{{ $service->imageUrl() }}" alt="" loading="lazy" decoding="async" width="600" height="400">
         @if ($service->is_featured)<span class="svc-lite-tag hot">Popular</span>
         @elseif ($service->isRecurring())<span class="svc-lite-tag"><i class="bi bi-arrow-repeat"></i> {{ $service->intervalLabel() }}</span>@endif
+    </span>
+    <span class="svc-lite-top">
+        <span class="svc-lite-icon"><i class="bi {{ $service->iconClass() }}"></i></span>
     </span>
     <strong class="svc-lite-name">{{ $service->name }}</strong>
     <span class="svc-lite-text">{{ $service->cardText() }}</span>

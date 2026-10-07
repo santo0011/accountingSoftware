@@ -41,7 +41,7 @@ class ComplianceController extends Controller implements HasMiddleware
             ->when($request->filled('customer'), fn ($q) => $q->where('customer_id', $request->customer))
             ->when($request->filled('from'), fn ($q) => $q->whereDate('due_date', '>=', $request->from))
             ->when($request->filled('to'), fn ($q) => $q->whereDate('due_date', '<=', $request->to))
-            ->orderBy('due_date')->paginate(per_page(25))->withQueryString();
+            ->orderBy('due_date')->paginate(per_page(20))->withQueryString();
 
         return view('admin.compliance.index', [
             'records' => $records,
@@ -68,7 +68,7 @@ class ComplianceController extends Controller implements HasMiddleware
             'status' => $this->compliance->statusFor($due, $type->reminder_days_before),
         ]);
 
-        return redirect()->route('admin.compliance.index')->with('success', 'Compliance record added.');
+        return $this->toList('admin.compliance.index')->with('success', 'Compliance record added.');
     }
 
     public function edit(ComplianceRecord $record): View
@@ -89,7 +89,7 @@ class ComplianceController extends Controller implements HasMiddleware
             'status' => $record->status === ComplianceStatus::Completed ? ComplianceStatus::Completed : $this->compliance->statusFor($due, $type->reminder_days_before),
         ]);
 
-        return redirect()->route('admin.compliance.index')->with('success', 'Compliance record updated.');
+        return $this->toList('admin.compliance.index')->with('success', 'Compliance record updated.');
     }
 
     public function complete(Request $request, ComplianceRecord $record): RedirectResponse

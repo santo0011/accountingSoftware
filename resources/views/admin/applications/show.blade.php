@@ -154,7 +154,7 @@
                                     <form method="POST" action="{{ route('admin.applications.deliverables.store', $application) }}" enctype="multipart/form-data" class="mt-2">
                                         @csrf
                                         <input type="text" name="name" class="form-control form-control-sm mb-2" placeholder="e.g. Certificate of Incorporation" required maxlength="150">
-                                        <input type="file" name="file" class="form-control form-control-sm mb-2" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                        <input type="file" name="file" class="form-control form-control-sm mb-2" required accept="{{ \App\Support\FileTypes::accept(\App\Support\FileTypes::DOCUMENTS) }}">
                                         <button class="btn btn-sm btn-cta"><i class="bi bi-upload me-1"></i>Upload &amp; share</button>
                                     </form>
                                 @endif

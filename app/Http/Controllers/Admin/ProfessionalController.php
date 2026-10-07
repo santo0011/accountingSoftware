@@ -53,7 +53,7 @@ class ProfessionalController extends Controller implements HasMiddleware
             $this->syncLogin($professional, $data, $request->boolean('create_login'));
         });
 
-        return redirect()->route('admin.professionals.index')->with('success', 'Professional added.');
+        return $this->toList('admin.professionals.index')->with('success', 'Professional added.');
     }
 
     public function edit(Professional $professional): View
@@ -72,7 +72,7 @@ class ProfessionalController extends Controller implements HasMiddleware
             $this->syncLogin($professional, $data, $request->boolean('create_login'));
         });
 
-        return redirect()->route('admin.professionals.index')->with('success', 'Professional updated.');
+        return $this->toList('admin.professionals.index')->with('success', 'Professional updated.');
     }
 
     public function destroy(Professional $professional): RedirectResponse

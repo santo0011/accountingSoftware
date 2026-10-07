@@ -61,7 +61,7 @@ class CustomerController extends Controller implements HasMiddleware
             $this->accounts->sendSetPasswordLink($customer->user);
         }
 
-        return redirect()->route('admin.customers.show', $customer)->with('success', 'Customer created'.($request->boolean('send_invite', true) ? ' and invited by email.' : '.'));
+        return $this->toList('admin.customers.index')->with('success', 'Customer created'.($request->boolean('send_invite', true) ? ' and invited by email.' : '.'));
     }
 
     public function show(Customer $customer): View
@@ -103,7 +103,7 @@ class CustomerController extends Controller implements HasMiddleware
 
         activity('customers')->performedOn($customer)->causedBy($request->user())->log('Updated customer '.$customer->customer_code);
 
-        return redirect()->route('admin.customers.show', $customer)->with('success', 'Customer updated.');
+        return $this->toList('admin.customers.index')->with('success', 'Customer updated.');
     }
 
     /** Customers are never hard-deleted (financial records); the account is deactivated. */
@@ -112,7 +112,7 @@ class CustomerController extends Controller implements HasMiddleware
         $customer->user->update(['status' => 'inactive']);
         activity('customers')->performedOn($customer)->causedBy($request->user())->log('Deactivated customer '.$customer->customer_code);
 
-        return redirect()->route('admin.customers.index')->with('success', 'Customer account deactivated.');
+        return $this->toList('admin.customers.index')->with('success', 'Customer account deactivated.');
     }
 
     public function updateSubscription(Request $request, CustomerService $customerService): RedirectResponse
