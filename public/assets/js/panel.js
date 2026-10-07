@@ -19,11 +19,70 @@
     }));
     document.querySelector('.sidebar-backdrop')?.addEventListener('click', () => body.classList.remove('sidebar-open'));
 
-    // Confirm before destructive actions: <form data-confirm="Are you sure?">
+    // Confirm before destructive actions: <form data-confirm="Delete this service?"> opens #confirmModal
+    // (falls back to the browser's confirm box if the dialog is missing).
+    const confirmEl = document.getElementById('confirmModal');
+    const confirmModal = confirmEl && window.bootstrap ? bootstrap.Modal.getOrCreateInstance(confirmEl) : null;
+    let confirmTarget = null;
+
+    const DANGER = /^(delete|remove|deactivate|cancel|disable|revoke|reject|archive)\b/i;
+    const ICONS = { delete: 'bi-trash3', remove: 'bi-x-circle', deactivate: 'bi-person-slash', cancel: 'bi-x-octagon', disable: 'bi-slash-circle', mark: 'bi-check2-circle', confirm: 'bi-check2-circle', create: 'bi-person-plus' };
+
+    const openConfirm = (form, submitter) => {
+        const msg = form.dataset.confirm;
+        const verb = (msg.match(/^\w+/) || ['confirm'])[0].toLowerCase();
+        const danger = form.dataset.confirmVariant ? form.dataset.confirmVariant === 'danger' : DANGER.test(msg);
+        const icon = ICONS[verb] || (danger ? 'bi-exclamation-triangle' : 'bi-question-circle');
+        const isDelete = (form.querySelector('input[name=_method]')?.value || '').toUpperCase() === 'DELETE';
+
+        // Name of the record: explicit, else the bold name in the table row / card the button sits in.
+        const row = form.closest('tr, .card, .list-group-item');
+        const item = form.dataset.confirmItem || row?.querySelector('.fw-semibold, .text-navy, strong')?.textContent.trim() || '';
+
+        confirmEl.classList.toggle('is-danger', danger);
+        confirmEl.querySelector('[data-confirm-icon]').className = 'bi ' + icon;
+        confirmEl.querySelector('[data-confirm-go-icon]').className = 'bi ' + icon;
+        confirmEl.querySelector('[data-confirm-title]').textContent = msg;
+        confirmEl.querySelector('[data-confirm-body]').textContent = form.dataset.confirmText
+            || (isDelete ? 'This will permanently remove it. This action cannot be undone.' : danger ? 'Please make sure — this may not be reversible.' : 'Please confirm to continue.');
+        confirmEl.querySelector('[data-confirm-go-label]').textContent = form.dataset.confirmButton || 'Yes, ' + verb;
+        const box = confirmEl.querySelector('[data-confirm-item-box]');
+        box.hidden = !item || msg.includes(item);
+        confirmEl.querySelector('[data-confirm-item-name]').textContent = item;
+        confirmEl.querySelector('[data-confirm-item-icon]').className = 'bi ' + (row?.querySelector('td .bi:not(.bi-star-fill)')?.className.match(/bi-[\w-]+/)?.[0] || 'bi-file-earmark-text');
+
+        const go = confirmEl.querySelector('[data-confirm-go]');
+        go.disabled = false;
+        go.classList.remove('loading');
+        confirmTarget = { form, submitter };
+        confirmModal.show();
+    };
+
     document.addEventListener('submit', (e) => {
-        const msg = e.target.getAttribute('data-confirm');
-        if (msg && !window.confirm(msg)) e.preventDefault();
+        const form = e.target;
+        const msg = form.getAttribute('data-confirm');
+        if (!msg) return;
+        if (form.dataset.confirmed) { delete form.dataset.confirmed; return; } // already confirmed in the dialog
+        e.preventDefault();
+        if (!confirmModal) { if (window.confirm(msg)) { form.dataset.confirmed = '1'; form.requestSubmit(e.submitter || undefined); } return; }
+        openConfirm(form, e.submitter);
     });
+
+    if (confirmModal) {
+        const go = confirmEl.querySelector('[data-confirm-go]');
+        go.addEventListener('click', () => {
+            if (!confirmTarget) return;
+            const { form, submitter } = confirmTarget;
+            go.disabled = true;
+            go.classList.add('loading');
+            form.dataset.confirmed = '1';
+            // requestSubmit runs the normal submit flow (button spinner, double-submit guard).
+            form.requestSubmit(submitter && submitter.form === form ? submitter : undefined);
+            confirmModal.hide();
+        });
+        confirmEl.addEventListener('shown.bs.modal', () => confirmEl.querySelector('.logout-cancel').focus());
+        confirmEl.addEventListener('hidden.bs.modal', () => { confirmTarget = null; });
+    }
 
     // Logout asks first: <form data-logout> opens #logoutModal; "Yes, log out" submits that form.
     const logoutModalEl = document.getElementById('logoutModal');
@@ -119,6 +178,99 @@
             box.classList.remove('has-file');
             if (label) label.textContent = label.dataset.empty || 'No file chosen';
         }
+    });
+
+    // Image upload fields (<x-form.image>): instant preview, drag & drop, type/size check, undo and "remove".
+    document.querySelectorAll('[data-img-up]').forEach((box) => {
+        const input = box.querySelector('[data-input]');
+        const drop = box.querySelector('[data-drop]');
+        const img = box.querySelector('[data-img]');
+        const empty = box.querySelector('[data-empty]');
+        const badge = box.querySelector('[data-badge]');
+        const info = box.querySelector('[data-info]');
+        const undo = box.querySelector('[data-undo]');
+        const remove = box.querySelector('[data-remove]');
+        const original = { src: img.getAttribute('src'), shown: !img.hidden, badge: badge.textContent, badgeShown: !badge.hidden };
+        const maxKb = parseInt(box.dataset.maxKb || '0', 10);
+        const allowed = (input.accept || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+        let objectUrl = null;
+
+        const show = (src, label, state) => {
+            img.hidden = !src;
+            if (src) img.src = src;
+            empty.hidden = !!src;
+            badge.hidden = !label;
+            badge.textContent = label || '';
+            box.classList.toggle('is-new', state === 'new');
+            box.classList.toggle('is-removed', state === 'removed');
+        };
+        const setInfo = (text, isError) => {
+            info.textContent = text;
+            info.classList.toggle('is-error', !!isError);
+        };
+        const restore = () => {
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+            objectUrl = null;
+            show(original.shown ? original.src : null, original.badgeShown ? original.badge : null, null);
+            setInfo(info.dataset.help);
+            undo.hidden = true;
+        };
+        const okType = (file) => {
+            const ext = '.' + file.name.split('.').pop().toLowerCase();
+            if (!allowed.length) return file.type.startsWith('image/');
+            return allowed.some((a) => a === ext || (a.endsWith('/*') ? file.type.startsWith(a.slice(0, -1)) : a === file.type));
+        };
+        const kb = (bytes) => (bytes >= 1024 * 1024 ? (bytes / 1024 / 1024).toFixed(1) + ' MB' : Math.max(1, Math.round(bytes / 1024)) + ' KB');
+
+        input.addEventListener('change', () => {
+            const file = input.files[0];
+            restore();
+            if (!file) return;
+            const exts = allowed.filter((a) => a.startsWith('.')).map((a) => a.slice(1).toUpperCase());
+            const problem = !okType(file) ? 'That file type is not allowed. Use ' + exts.join(', ') + '.'
+                : (maxKb && file.size > maxKb * 1024) ? 'This image is ' + kb(file.size) + ' — the limit is ' + kb(maxKb * 1024) + '.'
+                : null;
+            if (problem) {
+                input.value = '';
+                setInfo(problem, true);
+                box.classList.add('shake');
+                setTimeout(() => box.classList.remove('shake'), 500);
+                return;
+            }
+            if (remove) remove.checked = false;
+            objectUrl = URL.createObjectURL(file);
+            show(objectUrl, 'New — not saved yet', 'new');
+            undo.hidden = false;
+            setInfo(file.name + ' · ' + kb(file.size));
+            img.onload = () => {
+                if (img.src === objectUrl && img.naturalWidth) setInfo(file.name + ' · ' + img.naturalWidth + '×' + img.naturalHeight + ' px · ' + kb(file.size));
+            };
+        });
+
+        const pick = () => input.click();
+        drop.addEventListener('click', pick);
+        box.querySelector('[data-pick]').addEventListener('click', pick);
+        drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+        undo.addEventListener('click', () => { input.value = ''; restore(); });
+
+        ['dragenter', 'dragover'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); box.classList.add('is-drag'); }));
+        ['dragleave', 'dragend', 'drop'].forEach((t) => drop.addEventListener(t, () => box.classList.remove('is-drag')));
+        drop.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (!file) return;
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            input.files = dt.files;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+
+        remove?.addEventListener('change', () => {
+            input.value = '';
+            restore();
+            if (remove.checked) show(box.dataset.default || null, box.dataset.default ? 'Default image — after saving' : 'Removed — after saving', 'removed');
+        });
+        if (remove?.checked) remove.dispatchEvent(new Event('change'));
     });
 
     // Multi-step wizard: <div data-wizard> with .wizard-pane children and [data-step] indicators.
@@ -223,6 +375,75 @@
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); globalSearch.focus(); globalSearch.select(); }
         });
     }
+
+    // Live filtering: typing in a .filter-bar search box (or changing a select/date) refreshes the page content
+    // around the form without a reload, so focus stays in the box. Opt out with <form data-no-live>.
+    document.querySelectorAll('form.filter-bar').forEach((form, index) => {
+        if ((form.getAttribute('method') || 'get').toLowerCase() !== 'get' || form.hasAttribute('data-no-live')) return;
+        let timer = null;
+        let controller = null;
+        let lastUrl = location.href;
+
+        const buildUrl = () => {
+            const params = new URLSearchParams(new FormData(form));
+            [...params.keys()].forEach((k) => { if (params.get(k) === '') params.delete(k); });
+            const qs = params.toString();
+            return new URL((form.getAttribute('action') || location.pathname) + (qs ? '?' + qs : ''), location.href).href;
+        };
+
+        const swap = (fresh) => {
+            const parent = form.parentNode;
+            [...parent.children].forEach((el) => { if (el !== form) el.remove(); });
+            const before = [];
+            for (let el = fresh.previousElementSibling; el; el = el.previousElementSibling) before.unshift(el);
+            const after = [];
+            for (let el = fresh.nextElementSibling; el; el = el.nextElementSibling) after.push(el);
+            form.before(...before.map((el) => document.importNode(el, true)));
+            form.after(...after.map((el) => document.importNode(el, true)));
+            parent.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => bootstrap.Tooltip.getOrCreateInstance(el));
+        };
+
+        const refresh = () => {
+            clearTimeout(timer);
+            const url = buildUrl();
+            if (url === lastUrl) return;
+            lastUrl = url;
+            controller?.abort();
+            controller = new AbortController();
+            form.classList.add('is-searching');
+            fetch(url, { signal: controller.signal, credentials: 'same-origin' })
+                .then((r) => {
+                    if (!r.ok || r.redirected) throw new Error('reload');
+                    return r.text();
+                })
+                .then((html) => {
+                    const fresh = new DOMParser().parseFromString(html, 'text/html').querySelectorAll('form.filter-bar')[index];
+                    if (!fresh) throw new Error('reload');
+                    swap(fresh);
+                    history.replaceState(null, '', url);
+                    form.classList.remove('is-searching');
+                })
+                .catch((err) => {
+                    if (err.name === 'AbortError') return;
+                    location.href = url; // fall back to a normal page load
+                });
+        };
+
+        form.addEventListener('input', (e) => {
+            if (!e.target.matches('input[type=search], input[type=text], input:not([type])')) return;
+            clearTimeout(timer);
+            timer = setTimeout(refresh, 400);
+        });
+        form.addEventListener('change', (e) => {
+            if (e.target.matches('input[type=search], input[type=text], input:not([type])')) return; // handled on input
+            refresh();
+        });
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            lastUrl = null; // the Go/Filter button always refreshes
+            refresh();
+        });
+    });
 
     // Bootstrap tooltips.
     document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => new bootstrap.Tooltip(el));

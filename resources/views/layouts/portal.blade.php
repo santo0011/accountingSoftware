@@ -3,7 +3,7 @@
 <head>
     @include('partials.head')
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="{{ asset('assets/css/panel.css') }}?v=21">
+    <link rel="stylesheet" href="{{ asset('assets/css/panel.css') }}?v=40">
     @stack('head')
 </head>
 <body class="panel panel-customer">
@@ -32,7 +32,7 @@
     ];
 @endphp
 <aside class="sidebar dark theme-customer" aria-label="Customer navigation">
-    <div class="sidebar-brand"><x-brand :href="route('portal.dashboard')" /><span class="sidebar-badge">My Account</span></div>
+    @include('layouts.partials.sidebar-brand', ['href' => route('portal.dashboard'), 'subtitle' => 'Customer Portal'])
     <nav class="sidebar-nav" data-nav-groups>
         <div class="nav-groups-bar">
             <span>Menu</span>
@@ -96,8 +96,9 @@
 </div>
 
 @include('layouts.partials.logout-modal')
+@include('layouts.partials.confirm-modal')
 <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('assets/js/panel.js') }}?v=6"></script>
+<script src="{{ asset('assets/js/panel.js') }}?v=10"></script>
 @stack('scripts')
 </body>
 </html>

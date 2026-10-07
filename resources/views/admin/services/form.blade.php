@@ -38,18 +38,8 @@
                 <x-form.input name="sort_order" type="number" label="Sort order" :value="$service->sort_order ?? 0" col="col-md-3 mb-3" />
                 <x-form.textarea name="short_description" label="Short description" :value="$service->short_description" rows="2" required help="Shown at the top of the service page (max 500 characters)." col="col-12 mb-3" />
                 <x-form.input name="tagline" label="Card line" :value="$service->tagline" maxlength="120" help="One short sentence shown on service cards, e.g. “Get your GST registration done easily.”" col="col-md-7 mb-3" />
-                <div class="col-md-5 mb-3">
-                    <label class="form-label" for="f_image">Card image</label>
-                    <div class="d-flex gap-3 align-items-start">
-                        <img src="{{ $service->exists ? $service->imageUrl() : asset('images/site/placeholder.webp') }}" alt="" class="rounded border" style="width:96px;height:64px;object-fit:cover">
-                        <div class="flex-grow-1">
-                            <input type="file" name="image" id="f_image" class="form-control form-control-sm @error('image') is-invalid @enderror" accept="image/*">
-                            @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            <div class="form-text">JPG/PNG/WebP, landscape (3:2), max 2 MB.</div>
-                            @if ($service->image)<div class="form-check small mt-1"><input type="checkbox" class="form-check-input" name="remove_image" value="1" id="rmimg"><label class="form-check-label" for="rmimg">Use default image</label></div>@endif
-                        </div>
-                    </div>
-                </div>
+                <x-form.image name="image" label="Card image" :current="$service->image ? $service->imageUrl() : null" :default="asset('images/site/placeholder.webp')"
+                    ratio="3 / 2" help="JPG, PNG, WebP, GIF or JFIF, landscape (3:2), up to 2 MB." remove="remove_image" remove-label="Use the default image" col="col-md-5 mb-3" />
                 <x-form.input name="price" type="number" step="0.01" label="Price (₹, excl. GST)" :value="$service->price" required col="col-md-3 mb-3" />
                 <x-form.input name="discount_price" type="number" step="0.01" label="Discount price (₹)" :value="$service->discount_price" help="Optional offer price." col="col-md-3 mb-3" />
                 <x-form.select name="gst_rate" label="GST rate" :options="[0 => '0%', 5 => '5%', 12 => '12%', 18 => '18%', 28 => '28%']" :value="(int) $service->gst_rate" col="col-md-3 mb-3" />

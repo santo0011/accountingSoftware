@@ -40,7 +40,7 @@ class SupportController extends Controller implements HasMiddleware
             ->when($request->filled('priority'), fn ($q) => $q->where('priority', $request->priority))
             ->when($request->filled('category'), fn ($q) => $q->where('category', $request->category))
             ->orderByRaw("case priority when 'urgent' then 0 when 'high' then 1 when 'medium' then 2 else 3 end")
-            ->latest('last_reply_at')->paginate(per_page(25))->withQueryString();
+            ->latest('last_reply_at')->paginate(per_page(20))->withQueryString();
 
         return view('admin.support.index', [
             'tickets' => $tickets,

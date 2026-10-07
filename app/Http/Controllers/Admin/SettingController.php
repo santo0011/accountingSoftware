@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\SettingService;
+use App\Support\FileTypes;
 use App\Support\SiteCache;
 use Database\Seeders\SettingSeeder;
 use Illuminate\Http\RedirectResponse;
@@ -44,8 +45,8 @@ class SettingController extends Controller implements HasMiddleware
             'company_gstin' => ['nullable', 'regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/'],
             'company_pan' => ['nullable', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]$/'],
             'business_hours' => ['nullable', 'string', 'max:100'],
-            'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'], // 2 MB
-            'favicon' => ['nullable', 'file', 'mimes:png,ico', 'max:256'],
+            'logo' => ['nullable', 'file', FileTypes::rule(FileTypes::WEB_IMAGES), 'max:2048'], // 2 MB
+            'favicon' => ['nullable', 'file', FileTypes::rule(['png', 'ico', 'jpg', 'jpeg', 'jfif', 'gif']), 'max:256'],
             'social_facebook' => ['nullable', 'url', 'max:255'],
             'social_linkedin' => ['nullable', 'url', 'max:255'],
             'social_instagram' => ['nullable', 'url', 'max:255'],
@@ -75,7 +76,7 @@ class SettingController extends Controller implements HasMiddleware
             'seo_description' => ['nullable', 'string', 'max:500'],
             'seo_keywords' => ['nullable', 'string', 'max:500'],
             'google_analytics_id' => ['nullable', 'string', 'max:30', 'regex:/^[A-Z0-9\-]+$/'],
-            'hero_image' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
+            'hero_image' => ['nullable', 'file', FileTypes::rule(FileTypes::WEB_IMAGES), 'max:2048'],
             'hero_image_reset' => ['boolean'],
             'stat_customers' => ['nullable', 'string', 'max:20'],
             'stat_services' => ['nullable', 'string', 'max:20'],

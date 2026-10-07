@@ -40,7 +40,7 @@ class PageController extends Controller implements HasMiddleware
         Page::create($this->validated($request, new Page));
         SiteCache::flush();
 
-        return redirect()->route('admin.pages.index')->with('success', 'Page created.');
+        return $this->toList('admin.pages.index')->with('success', 'Page created.');
     }
 
     public function edit(Page $page): View
@@ -53,7 +53,7 @@ class PageController extends Controller implements HasMiddleware
         $page->update($this->validated($request, $page));
         SiteCache::flush();
 
-        return redirect()->route('admin.pages.index')->with('success', 'Page updated.');
+        return $this->toList('admin.pages.index')->with('success', 'Page updated.');
     }
 
     public function destroy(Page $page): RedirectResponse

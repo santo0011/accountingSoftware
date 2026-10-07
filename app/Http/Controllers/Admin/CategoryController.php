@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ServiceCategory;
+use App\Support\FileTypes;
 use App\Support\SiteCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,7 +39,7 @@ class CategoryController extends Controller implements HasMiddleware
         ServiceCategory::create($this->validated($request, new ServiceCategory));
         SiteCache::flush();
 
-        return redirect()->route('admin.categories.index')->with('success', 'Category created.');
+        return $this->toList('admin.categories.index')->with('success', 'Category created.');
     }
 
     public function edit(ServiceCategory $category): View
@@ -51,7 +52,7 @@ class CategoryController extends Controller implements HasMiddleware
         $category->update($this->validated($request, $category));
         SiteCache::flush();
 
-        return redirect()->route('admin.categories.index')->with('success', 'Category updated.');
+        return $this->toList('admin.categories.index')->with('success', 'Category updated.');
     }
 
     public function destroy(ServiceCategory $category): RedirectResponse
@@ -76,7 +77,7 @@ class CategoryController extends Controller implements HasMiddleware
             'tagline' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
             'icon' => ['nullable', 'string', 'max:60', 'regex:/^bi-[a-z0-9-]+$/'],
-            'banner' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'banner' => ['nullable', 'file', FileTypes::rule(FileTypes::WEB_IMAGES), 'max:2048'],
             'status' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'seo_title' => ['nullable', 'string', 'max:255'],

@@ -34,7 +34,7 @@ class FaqController extends Controller implements HasMiddleware
         Faq::create($this->validated($request));
         SiteCache::flush();
 
-        return redirect()->route('admin.faqs.index')->with('success', 'FAQ added.');
+        return $this->toList('admin.faqs.index')->with('success', 'FAQ added.');
     }
 
     public function edit(Faq $faq): View
@@ -47,7 +47,7 @@ class FaqController extends Controller implements HasMiddleware
         $faq->update($this->validated($request));
         SiteCache::flush();
 
-        return redirect()->route('admin.faqs.index')->with('success', 'FAQ updated.');
+        return $this->toList('admin.faqs.index')->with('success', 'FAQ updated.');
     }
 
     public function destroy(Faq $faq): RedirectResponse

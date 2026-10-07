@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     @include('partials.head')
-    <link rel="stylesheet" href="{{ asset('assets/css/site.css') }}?v=60">
+    <link rel="stylesheet" href="{{ asset('assets/css/site.css') }}?v=73">
     <script type="application/ld+json">
         {!! json_encode([
             '@context' => 'https://schema.org',

@@ -198,6 +198,6 @@ class ApplicationController extends Controller implements HasMiddleware
 
         $application->delete();
 
-        return redirect()->route('admin.applications.index')->with('success', 'Application deleted.');
+        return $this->toList('admin.applications.index')->with('success', 'Application deleted.');
     }
 }

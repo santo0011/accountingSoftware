@@ -43,7 +43,7 @@ class RoleController extends Controller implements HasMiddleware
         $role->syncPermissions($data['permissions'] ?? []);
         $this->log($request, "Created role {$role->name}");
 
-        return redirect()->route('admin.roles.index')->with('success', 'Role created.');
+        return $this->toList('admin.roles.index')->with('success', 'Role created.');
     }
 
     public function edit(Role $role): View
@@ -66,7 +66,7 @@ class RoleController extends Controller implements HasMiddleware
         app(PermissionRegistrar::class)->forgetCachedPermissions();
         $this->log($request, "Updated permissions of role {$role->name}");
 
-        return redirect()->route('admin.roles.index')->with('success', 'Role permissions saved.');
+        return $this->toList('admin.roles.index')->with('success', 'Role permissions saved.');
     }
 
     public function destroy(Request $request, Role $role): RedirectResponse

@@ -90,7 +90,7 @@ Route::prefix('account')->name('portal.')->middleware(['auth', 'verified', 'user
 | Admin panel (staff & professionals). Permissions are enforced per controller.
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'user.type:backoffice'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'user.type:backoffice', \App\Http\Middleware\RememberListUrl::class])->group(function () {
     Route::get('/', Admin\DashboardController::class)->name('dashboard');
     Route::get('/search', Admin\SearchController::class)->name('search');
 

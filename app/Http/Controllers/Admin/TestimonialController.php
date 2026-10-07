@@ -33,7 +33,7 @@ class TestimonialController extends Controller implements HasMiddleware
         Testimonial::create($this->validated($request));
         SiteCache::flush();
 
-        return redirect()->route('admin.testimonials.index')->with('success', 'Review added.');
+        return $this->toList('admin.testimonials.index')->with('success', 'Review added.');
     }
 
     public function edit(Testimonial $testimonial): View
@@ -46,7 +46,7 @@ class TestimonialController extends Controller implements HasMiddleware
         $testimonial->update($this->validated($request));
         SiteCache::flush();
 
-        return redirect()->route('admin.testimonials.index')->with('success', 'Review updated.');
+        return $this->toList('admin.testimonials.index')->with('success', 'Review updated.');
     }
 
     public function destroy(Testimonial $testimonial): RedirectResponse

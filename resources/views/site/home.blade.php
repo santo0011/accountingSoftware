@@ -12,64 +12,53 @@
 @section('content')
 
 {{-- ============ HERO ============ --}}
-<section class="hero-x">
-    <div class="hero-x-glow" aria-hidden="true"></div>
+<section class="hero-n hero-s">
+    <div class="hero-n-bg" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
     <div class="container position-relative">
         <div class="row align-items-center g-5">
-            <div class="col-lg-6 hero-x-copy">
-                <span class="hero-x-badge"><span class="dot"></span> Trusted by {{ setting('stat_customers', '10,000+') }} businesses across India</span>
-                <h1>Start, run &amp; grow your business <span class="hero-x-hl">without the <span class="hero-x-mark">paperwork<svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M3 14 C 60 4, 130 3, 297 10" /></svg></span>.</span></h1>
-                <p class="hero-x-lead">Company registration, GST, trademark and compliance — done online by expert CAs and lawyers, at fixed prices.</p>
+            <div class="col-lg-6 hero-n-copy">
+                <span class="hero-s-trust">
+                    <span class="hs-avatars" aria-hidden="true"><span>RK</span><span>AS</span><span>PM</span></span>
+                    <span class="hs-trust-text"><span class="stars" aria-hidden="true"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></span> Trusted by <strong>{{ setting('stat_customers', '10,000+') }}</strong> businesses</span>
+                </span>
+                <h1>All your business compliance needs <span class="hero-n-hl"><span class="hs-mark">Under One Roof<svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M3 14 C 60 4, 130 3, 297 10" /></svg></span>.</span></h1>
+                <p class="hero-n-lead">Company registration, GST, trademark and compliance — handled online by expert CAs and lawyers, at fixed prices.</p>
 
-                <div class="hero-x-actions">
+                <div class="hero-n-actions">
                     <a href="{{ route('site.services.index') }}" class="btn btn-cta btn-lg">Get Started <i class="bi bi-arrow-right ms-1"></i></a>
-                    <a href="{{ route('site.contact') }}" class="btn btn-ghost-light btn-lg"><i class="bi bi-headset me-1"></i> Talk to an Expert</a>
+                    <a href="{{ route('site.contact') }}" class="btn hero-n-btn-alt btn-lg"><i class="bi bi-headset me-1"></i> Talk to an Expert</a>
                 </div>
 
-                <ul class="hero-x-features">
-                    <li><i class="bi bi-laptop"></i><span><strong>100% online</strong><small>No office visits</small></span></li>
-                    <li><i class="bi bi-tag"></i><span><strong>Fixed pricing</strong><small>No hidden fees</small></span></li>
-                    <li><i class="bi bi-person-check"></i><span><strong>Expert-handled</strong><small>Qualified CAs &amp; CSs</small></span></li>
+                <ul class="hs-features">
+                    <li><span class="ic"><i class="bi bi-laptop"></i></span><span><strong>100% online</strong><small>No office visits</small></span></li>
+                    <li><span class="ic"><i class="bi bi-tag"></i></span><span><strong>Fixed pricing</strong><small>No hidden fees</small></span></li>
+                    <li><span class="ic"><i class="bi bi-person-check"></i></span><span><strong>Expert-led</strong><small>CAs, CSs &amp; lawyers</small></span></li>
                 </ul>
             </div>
 
             <div class="col-lg-6">
-                <div class="hero-x-visual" data-tilt>
-                    <div class="hero-orbit" aria-hidden="true">
-                        <div class="orbit-ring ring-1">
-                            <span class="orbit-dot" style="--a: 20deg"><span class="orbit-ico"><i class="bi bi-receipt"></i></span></span>
-                            <span class="orbit-dot" style="--a: 140deg"><span class="orbit-ico"><i class="bi bi-c-circle"></i></span></span>
-                            <span class="orbit-dot" style="--a: 260deg"><span class="orbit-ico"><i class="bi bi-bank"></i></span></span>
-                        </div>
-                        <div class="orbit-ring ring-2">
-                            <span class="orbit-dot sm" style="--a: 80deg"><span class="orbit-ico"><i class="bi bi-shield-check"></i></span></span>
-                            <span class="orbit-dot sm" style="--a: 200deg"><span class="orbit-ico"><i class="bi bi-file-earmark-text"></i></span></span>
-                            <span class="orbit-dot sm" style="--a: 320deg"><span class="orbit-ico"><i class="bi bi-graph-up-arrow"></i></span></span>
-                        </div>
+                {{-- Round photo with slow orbit rings centred on it, plus two small chips --}}
+                <div class="hero-s-visual">
+                    <div class="hero-s-orbit" aria-hidden="true">
+                        <span class="so-ripple"></span><span class="so-ripple d2"></span>
+                        <span class="so-ring s1"><i class="ob-dot"></i></span>
+                        <span class="so-ring s2"><i class="ob-dot green" style="--at: 140deg"></i><i class="ob-dot sm teal" style="--at: 285deg"></i></span>
+                        <span class="so-ring s3"></span>
+                        <span class="so-comet"></span>
                     </div>
-                    <div class="hero-x-photo">
+                    <div class="hero-s-photo">
                         <img src="{{ $heroImage }}" alt="Business team celebrating a completed registration" width="1100" height="900" fetchpriority="high">
                     </div>
-
-                    {{-- Mock application tracker: shows what customers get after applying --}}
-                    <div class="hero-x-tracker" aria-hidden="true">
-                        <div class="trk-head">
-                            <span class="trk-icon"><i class="bi bi-building"></i></span>
-                            <span class="trk-title"><strong>Company Registration</strong><small>Application in progress</small></span>
-                            <span class="trk-pct">75%</span>
-                        </div>
-                        <div class="trk-bar"><span></span></div>
-                        <ul class="trk-steps">
-                            <li class="done"><i class="bi bi-check-lg"></i> Documents verified</li>
-                            <li class="done"><i class="bi bi-check-lg"></i> Name approved</li>
-                            <li class="now"><i class="bi bi-arrow-repeat"></i> Filing incorporation</li>
-                        </ul>
+                    <div class="hero-s-chip chip-a" aria-hidden="true">
+                        <span class="ic"><i class="bi bi-check2"></i></span>
+                        <span>
+                            <strong>GST return filed</strong>
+                            <small>GSTR-3B · {{ now()->subMonth()->format('M') }} <em class="live">Just now</em></small>
+                        </span>
                     </div>
-
-                    <div class="hero-x-rating" aria-hidden="true">
-                        <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
-                        <strong>{{ setting('stat_rating', '4.8/5') }}</strong>
-                        <small>Customer rating</small>
+                    <div class="hero-s-chip chip-b" aria-hidden="true">
+                        <span class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></span>
+                        <span><strong>{{ setting('stat_rating', '4.8/5') }}</strong><small>Customer rating</small></span>
                     </div>
                 </div>
             </div>
@@ -77,7 +66,7 @@
     </div>
 
     @if ($categories->isNotEmpty())
-        {{-- Endless strip of categories; the list is repeated once so the loop is seamless --}}
+        {{-- Endless strip of categories along the bottom of the hero; the list is repeated once so the loop is seamless --}}
         <div class="hero-marquee">
             <div class="hero-marquee-track">
                 @foreach ([false, true] as $copy)
@@ -94,7 +83,7 @@
     @endif
 </section>
 
-<div class="hero-x-stats">
+<div class="hero-x-stats hero-n-stats">
     <div class="container">
         <div class="stats-band">
             <div class="row g-0">

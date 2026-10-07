@@ -3,7 +3,7 @@
 <head>
     @include('partials.head')
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="{{ asset('assets/css/panel.css') }}?v=21">
+    <link rel="stylesheet" href="{{ asset('assets/css/panel.css') }}?v=40">
     @stack('head')
 </head>
 <body class="panel panel-admin">
@@ -49,7 +49,7 @@
     $sectionIcons = ['Overview' => 'bi-speedometer', 'CRM' => 'bi-people', 'Operations' => 'bi-kanban', 'Billing' => 'bi-wallet2', 'Catalogue' => 'bi-grid', 'Team' => 'bi-person-badge', 'System' => 'bi-sliders'];
 @endphp
 <aside class="sidebar dark" aria-label="Admin navigation">
-    <div class="sidebar-brand"><x-brand :href="route('admin.dashboard')" /><span class="sidebar-badge">Admin</span></div>
+    @include('layouts.partials.sidebar-brand', ['href' => route('admin.dashboard'), 'subtitle' => $user->hasAnyRole([config('rbac.super_admin_role'), 'admin']) ? 'Admin Panel' : 'Staff Panel'])
     <nav class="sidebar-nav" data-nav-groups>
         <div class="nav-groups-bar">
             <span>Menu</span>
@@ -111,8 +111,9 @@
 </div>
 
 @include('layouts.partials.logout-modal')
+@include('layouts.partials.confirm-modal')
 <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('assets/js/panel.js') }}?v=6"></script>
+<script src="{{ asset('assets/js/panel.js') }}?v=10"></script>
 @stack('scripts')
 </body>
 </html>

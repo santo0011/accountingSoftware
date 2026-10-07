@@ -13,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ServiceController extends Controller implements HasMiddleware
@@ -34,7 +35,7 @@ class ServiceController extends Controller implements HasMiddleware
             ->when($request->filled('category'), fn ($q) => $q->where('service_category_id', $request->category))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status === 'active'))
             ->when($request->filled('billing'), fn ($q) => $q->where('billing_type', $request->billing))
-            ->orderBy('service_category_id')->orderBy('sort_order')->paginate(per_page(25))->withQueryString();
+            ->orderBy('service_category_id')->orderBy('sort_order')->paginate(per_page(20))->withQueryString();
 
         $categories = ServiceCategory::orderBy('sort_order')->pluck('name', 'id');
 
@@ -52,7 +53,7 @@ class ServiceController extends Controller implements HasMiddleware
     {
         $service = $this->catalog->save(new Service, $request->validated());
 
-        return redirect()->route('admin.services.edit', $service)->with('success', 'Service created.');
+        return $this->toList('admin.services.index')->with('success', "“{$service->name}” created.");
     }
 
     public function edit(Service $service): View
@@ -66,22 +67,28 @@ class ServiceController extends Controller implements HasMiddleware
     {
         $this->catalog->save($service, $request->validated());
 
-        return back()->with('success', 'Service updated.');
+        return $this->toList('admin.services.index')->with('success', "“{$service->name}” updated.");
     }
 
     public function destroy(Service $service): RedirectResponse
     {
+        // Back to the list the admin came from, keeping its filters and page (e.g. ?category=2).
+        $previous = url()->previous();
+        $list = str_starts_with($previous, route('admin.services.index')) ? $previous : route('admin.services.index');
+
         if ($service->applications()->exists()) {
             $service->update(['status' => false]);
             SiteCache::flush();
 
-            return back()->with('warning', 'This service has applications, so it was disabled instead of deleted.');
+            return redirect()->to($list)->with('warning', "“{$service->name}” has applications, so it was disabled (hidden from the website) instead of deleted.");
         }
 
+        // Soft delete keeps the row for history; free its slug so a new service can reuse the name.
+        $service->forceFill(['slug' => Str::limit($service->slug, 140, '').'--deleted-'.$service->id])->saveQuietly();
         $service->delete();
         SiteCache::flush();
 
-        return redirect()->route('admin.services.index')->with('success', 'Service deleted.');
+        return redirect()->to($list)->with('success', "“{$service->name}” deleted.");
     }
 
     private function formData(Service $service): array

@@ -64,7 +64,7 @@ class LeadController extends Controller implements HasMiddleware
     {
         $lead = $this->leads->create($request->validated(), $request->user());
 
-        return redirect()->route('admin.leads.show', $lead)->with('success', 'Lead created.');
+        return $this->toList('admin.leads.index')->with('success', 'Lead created.');
     }
 
     public function show(Request $request, Lead $lead): View
@@ -87,14 +87,14 @@ class LeadController extends Controller implements HasMiddleware
         $this->authorizeLead($request, $lead);
         $this->leads->update($lead, $request->validated(), $request->user());
 
-        return redirect()->route('admin.leads.show', $lead)->with('success', 'Lead updated.');
+        return $this->toList('admin.leads.index')->with('success', 'Lead updated.');
     }
 
     public function destroy(Lead $lead): RedirectResponse
     {
         $lead->delete();
 
-        return redirect()->route('admin.leads.index')->with('success', 'Lead deleted.');
+        return $this->toList('admin.leads.index')->with('success', 'Lead deleted.');
     }
 
     public function followup(Request $request, Lead $lead): RedirectResponse

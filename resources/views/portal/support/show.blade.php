@@ -15,7 +15,7 @@
                 @csrf
                 <div class="card-body">
                     <x-form.textarea name="message" label="Your reply" rows="4" required />
-                    <x-form.input name="attachment" type="file" label="Attachment (optional)" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" col="mb-0" />
+                    <x-form.input name="attachment" type="file" label="Attachment (optional)" accept="{{ \App\Support\FileTypes::accept(\App\Support\FileTypes::DOCUMENTS) }}" col="mb-0" />
                 </div>
                 <div class="card-footer bg-white text-end"><button class="btn btn-primary"><i class="bi bi-send me-1"></i>Send Reply</button></div>
             </form>
