@@ -23,20 +23,25 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th class="col-sl">#</th><th>Invoice</th><th>Date</th><th>Billed to</th><th>Application</th><th>Taxable</th><th>GST</th><th>Total</th><th>Status</th><th></th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Invoice</th><th>Billed to</th><th class="text-end">Amount</th><th>Status</th><th class="text-end">PDF</th></tr></thead>
                 <tbody>
                 @foreach ($invoices as $inv)
                     <tr>
                         <td class="col-sl" data-label="#">{{ $invoices->firstItem() + $loop->index }}</td>
-                        <td data-label="Invoice"><a href="{{ route('admin.invoices.show', $inv) }}" class="fw-semibold">{{ $inv->invoice_no }}</a></td>
-                        <td data-label="Date">{{ $inv->invoice_date->format('d M Y') }}</td>
-                        <td data-label="Billed to">{{ $inv->billing_name }}@if ($inv->billing_gstin)<br><small class="text-muted">{{ $inv->billing_gstin }}</small>@endif</td>
-                        <td data-label="Application">{{ $inv->application?->application_no ?? '—' }}</td>
-                        <td data-label="Taxable">{{ money($inv->subtotal - $inv->discount) }}</td>
-                        <td data-label="GST">{{ money($inv->taxTotal()) }}</td>
-                        <td data-label="Total" class="fw-semibold">{{ money($inv->total) }}</td>
+                        <td data-label="Invoice" class="text-nowrap stack-multi">
+                            <a href="{{ route('admin.invoices.show', $inv) }}" class="fw-semibold d-block">{{ $inv->invoice_no }}</a>
+                            <small class="text-muted d-block">{{ $inv->invoice_date->format('d M Y') }}</small>
+                        </td>
+                        <td data-label="Billed to" class="stack-multi td-clip" title="{{ $inv->billing_name }}">
+                            <span class="d-block">{{ $inv->billing_name }}</span>
+                            <small class="text-muted d-block">{{ $inv->billing_gstin ? 'GSTIN '.$inv->billing_gstin : ($inv->application?->application_no ?? 'No application') }}</small>
+                        </td>
+                        <td data-label="Amount" class="text-end text-nowrap stack-multi">
+                            <span class="fw-semibold d-block">{{ money($inv->total) }}</span>
+                            <small class="text-muted d-block">{{ money($inv->subtotal - $inv->discount) }} + {{ money($inv->taxTotal()) }} GST</small>
+                        </td>
                         <td data-label="Status"><x-status-badge :status="$inv->status" /></td>
-                        <td class="td-actions text-end"><a href="{{ route('admin.invoices.pdf', $inv) }}" target="_blank" class="btn btn-sm btn-light"><i class="bi bi-file-earmark-pdf"></i></a></td>
+                        <td class="td-actions text-end"><a href="{{ route('admin.invoices.pdf', $inv) }}" target="_blank" class="btn btn-sm btn-light" title="Download PDF" aria-label="PDF of {{ $inv->invoice_no }}"><i class="bi bi-file-earmark-pdf"></i></a></td>
                     </tr>
                 @endforeach
                 </tbody>

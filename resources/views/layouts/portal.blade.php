@@ -3,7 +3,7 @@
 <head>
     @include('partials.head')
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="{{ asset('assets/css/panel.css') }}?v=40">
+    <link rel="stylesheet" href="{{ asset('assets/css/panel.css') }}?v=53">
     @stack('head')
 </head>
 <body class="panel panel-customer">
@@ -98,7 +98,7 @@
 @include('layouts.partials.logout-modal')
 @include('layouts.partials.confirm-modal')
 <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('assets/js/panel.js') }}?v=10"></script>
+<script src="{{ asset('assets/js/panel.js') }}?v=12"></script>
 @stack('scripts')
 </body>
 </html>

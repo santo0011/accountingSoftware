@@ -71,7 +71,7 @@ class RoleController extends Controller implements HasMiddleware
 
     public function destroy(Request $request, Role $role): RedirectResponse
     {
-        if (in_array($role->name, array_merge(self::LOCKED, ['admin']), true) || $role->users()->exists()) {
+        if (in_array($role->name, self::LOCKED, true) || $role->users()->exists()) {
             return back()->with('error', 'This role is in use or protected and cannot be deleted.');
         }
 

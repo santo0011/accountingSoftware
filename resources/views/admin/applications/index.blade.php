@@ -39,18 +39,26 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th class="col-sl">#</th><th>Application</th><th>Customer</th><th>Service</th><th>Assigned</th><th>Total</th><th>Payment</th><th>Status</th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Application</th><th>Customer</th><th>Service</th><th>Assigned</th><th class="text-end">Amount &amp; payment</th><th>Status</th></tr></thead>
                 <tbody>
                 @foreach ($applications as $app)
                     <tr>
                         <td class="col-sl" data-label="#">{{ $applications->firstItem() + $loop->index }}</td>
-                        <td data-label="Application"><a href="{{ route('admin.applications.show', $app) }}" class="fw-semibold">{{ $app->application_no }}</a><br><small class="text-muted">{{ $app->created_at->format('d M Y') }}</small></td>
-                        <td data-label="Customer">{{ $app->customer->user->name }}<br><small class="text-muted">{{ $app->customer->user->mobile }}</small></td>
-                        <td data-label="Service">{{ $app->service->name }}</td>
-                        <td data-label="Assigned">{!! $app->staff ? e($app->staff->name) : '<span class="badge badge-soft-warning">Unassigned</span>' !!}</td>
-                        <td data-label="Total">{{ money($app->total) }}</td>
-                        <td data-label="Payment"><x-status-badge :status="$app->payment_status" /></td>
-                        <td data-label="Status"><x-status-badge :status="$app->status" /></td>
+                        <td data-label="Application" class="text-nowrap stack-multi">
+                            <a href="{{ route('admin.applications.show', $app) }}" class="fw-semibold d-block">{{ $app->application_no }}</a>
+                            <small class="text-muted d-block">{{ $app->created_at->format('d M Y') }}</small>
+                        </td>
+                        <td data-label="Customer" class="stack-multi td-clip narrow" title="{{ $app->customer->user->name }}">
+                            <span class="d-block">{{ $app->customer->user->name }}</span>
+                            <small class="text-muted d-block">{{ $app->customer->user->mobile }}</small>
+                        </td>
+                        <td data-label="Service" class="td-clip wide" title="{{ $app->service->name }}"><span class="d-block">{{ $app->service->name }}</span></td>
+                        <td data-label="Assigned" class="text-nowrap">{!! $app->staff ? e($app->staff->name) : '<span class="badge badge-soft-warning">Unassigned</span>' !!}</td>
+                        <td data-label="Amount &amp; payment" class="text-end text-nowrap stack-multi">
+                            <span class="fw-semibold d-block">{{ money($app->total) }}</span>
+                            <span class="d-block mt-1"><x-status-badge :status="$app->payment_status" /></span>
+                        </td>
+                        <td data-label="Status" class="text-nowrap"><x-status-badge :status="$app->status" /></td>
                     </tr>
                 @endforeach
                 </tbody>

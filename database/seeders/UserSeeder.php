@@ -16,12 +16,12 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $staff = [
-            ['Super Admin', self::ADMIN_EMAIL, '9000000001', 'super-admin', 'Management', 'Managing Director'],
-            ['Anita Desai', 'admin.ops@bizsetu.test', '9000000002', 'admin', 'Operations', 'Operations Head'],
+            ['Admin', self::ADMIN_EMAIL, '9000000001', 'super-admin', 'Management', 'Managing Director'],
+            ['Anita Desai', 'admin.ops@bizsetu.test', '9000000002', 'super-admin', 'Operations', 'Operations Head'],
             ['Rahul Mehta', 'rahul.staff@bizsetu.test', '9000000003', 'staff', 'Operations', 'Relationship Manager'],
             ['Kavya Reddy', 'kavya.staff@bizsetu.test', '9000000004', 'staff', 'Tax & GST', 'GST Executive'],
             ['Suresh Iyer', 'accounts@bizsetu.test', '9000000005', 'accountant', 'Accounts', 'Senior Accountant'],
-            ['Neha Kapoor', 'hr@bizsetu.test', '9000000006', 'hr', 'HR', 'HR Manager'],
+            ['Neha Kapoor', 'hr@bizsetu.test', '9000000006', 'staff', 'HR', 'HR Manager'],
         ];
 
         foreach ($staff as $i => [$name, $email, $mobile, $role, $department, $designation]) {

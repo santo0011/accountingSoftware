@@ -28,18 +28,26 @@
     @else
         <div class="table-responsive">
             <table class="table table-hover table-stack">
-                <thead><tr><th class="col-sl">#</th><th>Lead</th><th>Contact</th><th>Interested in</th><th>Source</th><th>Assigned</th><th>Next follow-up</th><th>Status</th></tr></thead>
+                <thead><tr><th class="col-sl">#</th><th>Lead</th><th>Contact</th><th>Interested in</th><th>Assigned</th><th>Next follow-up</th><th>Status</th></tr></thead>
                 <tbody>
                 @foreach ($leads as $lead)
                     <tr>
                         <td class="col-sl" data-label="#">{{ $leads->firstItem() + $loop->index }}</td>
-                        <td data-label="Lead"><a href="{{ route('admin.leads.show', $lead) }}" class="fw-semibold">{{ $lead->name }}</a>@if ($lead->company)<br><small class="text-muted">{{ $lead->company }}</small>@endif</td>
-                        <td data-label="Contact">{{ $lead->phone }}<br><small class="text-muted">{{ $lead->email }}</small></td>
-                        <td data-label="Interested in">{{ $lead->service?->name ?? '—' }}</td>
-                        <td data-label="Source">{{ $lead->sourceLabel() }}</td>
-                        <td data-label="Assigned">{{ $lead->assignee?->name ?? '—' }}</td>
-                        <td data-label="Next follow-up" class="{{ $lead->next_followup_at?->isPast() ? 'text-danger fw-semibold' : '' }}">{{ $lead->next_followup_at?->format('d M Y') ?? '—' }}</td>
-                        <td data-label="Status"><x-status-badge :status="$lead->status" /></td>
+                        <td data-label="Lead" class="stack-multi td-clip" title="{{ $lead->name }}{{ $lead->company ? ' · '.$lead->company : '' }}">
+                            <a href="{{ route('admin.leads.show', $lead) }}" class="fw-semibold d-block">{{ $lead->name }}</a>
+                            <small class="text-muted d-block">{{ $lead->company ?: 'Individual' }}</small>
+                        </td>
+                        <td data-label="Contact" class="stack-multi td-clip" title="{{ $lead->email }}">
+                            <span class="d-block">{{ $lead->phone }}</span>
+                            <small class="text-muted d-block">{{ $lead->email ?: '—' }}</small>
+                        </td>
+                        <td data-label="Interested in" class="stack-multi td-clip" title="{{ $lead->service?->name }}">
+                            <span class="d-block">{{ $lead->service?->name ?? 'Not specified' }}</span>
+                            <small class="text-muted d-block">via {{ $lead->sourceLabel() }}</small>
+                        </td>
+                        <td data-label="Assigned" class="text-nowrap">{{ $lead->assignee?->name ?? '—' }}</td>
+                        <td data-label="Next follow-up" class="text-nowrap {{ $lead->next_followup_at?->isPast() ? 'text-danger fw-semibold' : '' }}">{{ $lead->next_followup_at?->format('d M Y') ?? '—' }}</td>
+                        <td data-label="Status" class="text-nowrap"><x-status-badge :status="$lead->status" /></td>
                     </tr>
                 @endforeach
                 </tbody>

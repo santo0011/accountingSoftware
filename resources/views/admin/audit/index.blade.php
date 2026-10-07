@@ -15,25 +15,33 @@
 <div class="table-card">
     <div class="table-responsive">
         <table class="table table-stack">
-            <thead><tr><th class="col-sl">#</th><th>When</th><th>User</th><th>Area</th><th>Action</th><th>Changes</th></tr></thead>
+            <thead><tr><th class="col-sl">#</th><th>When</th><th>User</th><th>Action</th><th>Changes</th></tr></thead>
             <tbody>
             @forelse ($activities as $a)
                 <tr>
                     <td class="col-sl" data-label="#">{{ $activities->firstItem() + $loop->index }}</td>
-                    <td data-label="When" class="text-nowrap">{{ $a->created_at->format('d M Y, h:i A') }}</td>
-                    <td data-label="User">{{ $a->causer?->name ?? 'System' }}</td>
-                    <td data-label="Area"><span class="badge badge-soft-secondary">{{ $a->log_name }}</span></td>
-                    <td data-label="Action">{{ ucfirst($a->description) }} @if ($a->subject_type)<small class="text-muted">{{ class_basename($a->subject_type) }} #{{ $a->subject_id }}</small>@endif</td>
-                    <td data-label="Changes" class="small">
+                    <td data-label="When" class="text-nowrap stack-multi">
+                        <span class="d-block">{{ $a->created_at->format('d M Y') }}</span>
+                        <small class="text-muted d-block">{{ $a->created_at->format('h:i A') }}</small>
+                    </td>
+                    <td data-label="User" class="text-nowrap stack-multi">
+                        <span class="d-block">{{ $a->causer?->name ?? 'System' }}</span>
+                        <small class="text-muted d-block">{{ $a->log_name }}</small>
+                    </td>
+                    <td data-label="Action" class="text-nowrap stack-multi">
+                        <span class="d-block">{{ ucfirst($a->description) }}</span>
+                        @if ($a->subject_type)<small class="text-muted d-block">{{ class_basename($a->subject_type) }} #{{ $a->subject_id }}</small>@endif
+                    </td>
+                    <td data-label="Changes" class="small audit-changes stack-multi">
                         @php($new = $a->properties['attributes'] ?? [])
                         @php($old = $a->properties['old'] ?? [])
                         @foreach (array_slice($new, 0, 5, true) as $key => $value)
-                            <div><span class="text-muted">{{ $key }}:</span> @if (array_key_exists($key, $old))<del class="text-danger">{{ \Illuminate\Support\Str::limit(is_scalar($old[$key]) ? (string) $old[$key] : json_encode($old[$key]), 30) }}</del> → @endif{{ \Illuminate\Support\Str::limit(is_scalar($value) ? (string) $value : json_encode($value), 40) }}</div>
+                            <div class="text-truncate" title="{{ $key }}: {{ is_scalar($value) ? $value : json_encode($value) }}"><span class="text-muted">{{ $key }}:</span> @if (array_key_exists($key, $old))<del class="text-danger">{{ \Illuminate\Support\Str::limit(is_scalar($old[$key]) ? (string) $old[$key] : json_encode($old[$key]), 30) }}</del> → @endif{{ \Illuminate\Support\Str::limit(is_scalar($value) ? (string) $value : json_encode($value), 40) }}</div>
                         @endforeach
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6"><x-empty-state icon="bi-journal-text" title="No activity" /></td></tr>
+                <tr><td colspan="5"><x-empty-state icon="bi-journal-text" title="No activity" /></td></tr>
             @endforelse
             </tbody>
         </table>

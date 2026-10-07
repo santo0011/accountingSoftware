@@ -25,7 +25,7 @@ class LoginRedirectTest extends TestCase
     {
         return [
             'super admin' => ['admin@bizsetu.test', 'admin.dashboard'],
-            'admin' => ['admin.ops@bizsetu.test', 'admin.dashboard'],
+            'operations admin' => ['admin.ops@bizsetu.test', 'admin.dashboard'],
             'staff' => ['rahul.staff@bizsetu.test', 'admin.dashboard'],
             'customer' => ['customer@bizsetu.test', 'portal.dashboard'],
         ];
